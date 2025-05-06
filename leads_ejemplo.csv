@@ -1,0 +1,4 @@
+nombre,telefono,estado,direccion,categoria,rating,horarios,latitud,longitud,notas,foto_url,asignado_a
+Bar Prueba 1,123456789,nuevo,Calle 1,bar,4.5,"Lunes a Viernes 9-18",-34.60,-58.38,"Nota para Bar 1",https://ejemplo.com/foto1.jpg,
+Restaurante Central,987654321,seguimiento,Avenida 2,restaurante,4.8,"Todos los días 12-23",-34.61,-58.39,"Nota para Restaurante",https://ejemplo.com/foto2.jpg,
+Café Moderno,555123456,ganado,Calle 3,cafe,4.2,"Lunes a Sábado 8-20",-34.62,-58.40,"Nota para Café",https://ejemplo.com/foto3.jpg,

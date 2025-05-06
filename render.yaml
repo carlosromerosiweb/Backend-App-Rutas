@@ -2,7 +2,7 @@ services:
   - type: web
     name: backend-app-rutas
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -14,4 +14,6 @@ services:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
-        sync: false 
+        sync: false
+      - key: PORT
+        value: 10000 

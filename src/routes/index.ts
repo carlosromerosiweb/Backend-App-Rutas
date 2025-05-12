@@ -10,6 +10,7 @@ import geocodingRoutes from './geocoding.routes';
 import placesImportRoutes from './placesImport.routes';
 import googleCalendarRoutes from './googleCalendar.routes';
 import intelligentAgendaRoutes from './intelligentAgendaRoutes';
+import usersRoutes from './users';
 import { authenticate } from '../middlewares/auth';
 
 const router = Router();
@@ -19,6 +20,7 @@ router.use('/', authRoutes);
 
 // Protected routes
 router.use('/leads', authenticate, leadsRoutes);
+router.use('/users', authenticate, usersRoutes);
 router.use('/import', importRoutes);
 router.use('/leads/import', placesImportRoutes);
 router.use('/checkins', authenticate, checkinsRoutes);

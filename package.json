@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ts-node src/server.ts"
+    "start": "npx ts-node src/server.ts",
+    "test:offline-sync": "ts-node src/tests/offline-sync.test.ts"
   },
   "keywords": [],
   "author": "",

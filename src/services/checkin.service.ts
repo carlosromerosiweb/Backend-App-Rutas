@@ -52,8 +52,8 @@ export class CheckInService {
 
       // Verificar si está dentro del radio
       const leadCoordinates = {
-        latitude: nearestLead.latitude!,
-        longitude: nearestLead.longitude!
+        latitude: nearestLead.coordinates!.latitude,
+        longitude: nearestLead.coordinates!.longitude
       };
 
       if (!isWithinRadius(location, leadCoordinates, radius)) {
@@ -132,8 +132,9 @@ export class CheckInService {
       SELECT l.* 
       FROM leads l
       WHERE l.assigned_to = $1 
-      AND l.latitude IS NOT NULL 
-      AND l.longitude IS NOT NULL
+      AND l.coordinates IS NOT NULL 
+      AND l.coordinates->>'latitude' IS NOT NULL 
+      AND l.coordinates->>'longitude' IS NOT NULL
       AND l.status != 'completado'
     `;
 
@@ -150,11 +151,11 @@ export class CheckInService {
     return leads.reduce((nearest, current) => {
       const currentDistance = calculateDistance(
         location,
-        { latitude: current.latitude!, longitude: current.longitude! }
+        { latitude: current.coordinates!.latitude, longitude: current.coordinates!.longitude }
       );
       const nearestDistance = calculateDistance(
         location,
-        { latitude: nearest.latitude!, longitude: nearest.longitude! }
+        { latitude: nearest.coordinates!.latitude, longitude: nearest.coordinates!.longitude }
       );
 
       return currentDistance < nearestDistance ? current : nearest;

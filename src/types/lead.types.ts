@@ -4,8 +4,10 @@ export interface Lead {
   email?: string;
   phone?: string;
   address?: string;
-  latitude?: number;
-  longitude?: number;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   status: string;
   assigned_to: number;
   notes?: string;

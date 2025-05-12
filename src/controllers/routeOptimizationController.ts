@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { RouteOptimizationService } from '../services/routeOptimizationService';
+import { DirectionsService } from '../services/directions.service';
 import { validateUserRole } from '../middlewares/authMiddleware';
 import { z } from 'zod';
 
@@ -10,10 +10,10 @@ const routeOptimizationSchema = z.object({
 });
 
 export class RouteOptimizationController {
-  private routeOptimizationService: RouteOptimizationService;
+  private directionsService: DirectionsService;
 
   constructor() {
-    this.routeOptimizationService = new RouteOptimizationService();
+    this.directionsService = new DirectionsService();
   }
 
   public getOptimizedRoute = async (req: Request, res: Response): Promise<void> => {
@@ -36,14 +36,14 @@ export class RouteOptimizationController {
         return;
       }
 
-      // Obtener la ruta optimizada
-      const optimizedRoute = await this.routeOptimizationService.getOptimizedRoute({
+      // Obtener la ruta optimizada usando el servicio de direcciones
+      const optimizedRoute = await this.directionsService.getOptimizedRoute(
         userId,
         userRole,
-        date: params.date,
-        originLat: params.origin_lat,
-        originLng: params.origin_lng,
-      });
+        params.date,
+        params.origin_lat,
+        params.origin_lng
+      );
 
       res.json(optimizedRoute);
     } catch (error) {

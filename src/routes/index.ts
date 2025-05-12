@@ -9,6 +9,7 @@ import reportRoutes from './reports.routes';
 import geocodingRoutes from './geocoding.routes';
 import placesImportRoutes from './placesImport.routes';
 import googleCalendarRoutes from './googleCalendar.routes';
+import intelligentAgendaRoutes from './intelligentAgendaRoutes';
 import { authenticate } from '../middlewares/auth';
 
 const router = Router();
@@ -25,6 +26,7 @@ router.use('/followups', authenticate, followupsRoutes);
 router.use('/reports', reportRoutes);
 router.use('/geocode', geocodingRoutes);
 router.use('/google', googleCalendarRoutes);
+router.use('/routes', authenticate, intelligentAgendaRoutes);
 
 // Example of a protected route
 router.get('/protected', authenticate, (req, res) => {

@@ -65,7 +65,7 @@ class LeadService {
         CREATE TABLE IF NOT EXISTS lead_interactions (
           id SERIAL PRIMARY KEY,
           lead_id INTEGER NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
-          type VARCHAR(50) NOT NULL,
+          interaction_type VARCHAR(50) NOT NULL,
           notes TEXT NOT NULL,
           outcome TEXT,
           user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
@@ -498,7 +498,7 @@ class LeadService {
       // Crear la interacción
       const query = `
         INSERT INTO lead_interactions (
-          lead_id, type, notes, outcome, user_id, date, duration, location
+          lead_id, interaction_type, notes, outcome, user_id, date, duration, location
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8
         ) RETURNING *

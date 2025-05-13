@@ -26,6 +26,7 @@ export interface LoginUserDto {
 }
 
 export interface JwtPayload {
+  id: string;
   userId: string;
   email: string;
   role: string;
@@ -65,4 +66,21 @@ export interface OptimizedRoute {
     longitude: number;
   };
   date: string;
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  description: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface TeamMember {
+  id: number;
+  team_id: number;
+  user_id: number;
+  name: string;
+  email: string;
+  role: string;
 }

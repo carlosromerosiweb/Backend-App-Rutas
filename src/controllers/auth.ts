@@ -65,6 +65,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Generate JWT
     const payload: JwtPayload = {
+      id: newUser.id,
       userId: newUser.id,
       email: newUser.email,
       role: newUser.role
@@ -130,6 +131,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Generate JWT
     const payload: JwtPayload = {
+      id: user.id,
       userId: user.id,
       email: user.email,
       role: user.role
@@ -250,6 +252,7 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
 
     // Generar nuevo token
     const payload: JwtPayload = {
+      id: user.id,
       userId: user.id,
       email: user.email,
       role: user.role

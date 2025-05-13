@@ -11,6 +11,8 @@ import placesImportRoutes from './placesImport.routes';
 import googleCalendarRoutes from './googleCalendar.routes';
 import intelligentAgendaRoutes from './intelligentAgendaRoutes';
 import usersRoutes from './users';
+import teamRoutes from './team.routes';
+import teamLogRoutes from './team-log.routes';
 import { authenticate } from '../middlewares/auth';
 
 const router = Router();
@@ -21,6 +23,8 @@ router.use('/', authRoutes);
 // Protected routes
 router.use('/leads', authenticate, leadsRoutes);
 router.use('/users', authenticate, usersRoutes);
+router.use('/teams', authenticate, teamRoutes);
+router.use('/teams', authenticate, teamLogRoutes);
 router.use('/import', importRoutes);
 router.use('/leads/import', placesImportRoutes);
 router.use('/checkins', authenticate, checkinsRoutes);

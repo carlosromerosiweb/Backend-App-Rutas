@@ -4,6 +4,7 @@
 import { Pool } from 'pg';
 import pool from '../db';
 import { logger } from '../utils/logger';
+import { GamificationService } from './gamification.service';
 import { 
   Lead, 
   LeadStatus, 
@@ -17,6 +18,8 @@ import {
   LeadSummary,
   PaginatedLeadResponse
 } from '../types/leads';
+
+const gamificationService = new GamificationService();
 
 class LeadService {
   private pool: Pool;
@@ -612,6 +615,12 @@ class LeadService {
     userId?: number
   ): Promise<Lead | null> {
     try {
+      // Obtener el estado anterior
+      const oldStatus = await this.pool.query(
+        'SELECT status FROM leads WHERE id = $1',
+        [id]
+      );
+
       // Actualizar el estado del lead
       const updatedLead = await this.updateLead(id, { status });
       
@@ -630,6 +639,11 @@ class LeadService {
           },
           userId
         );
+      }
+
+      // Asignar puntos si el lead se marca como cliente
+      if (status === LeadStatus.CUSTOMER && oldStatus.rows[0]?.status !== LeadStatus.CUSTOMER && userId) {
+        await gamificationService.updateUserPoints(userId, 50, 'lead_won');
       }
       
       return updatedLead;

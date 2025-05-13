@@ -3,7 +3,7 @@ import authRoutes from './auth';
 import notificationRoutes from './notifications';
 import leadsRoutes from './leads';
 import importRoutes from './import';
-import checkinsRoutes from './checkin.routes';
+import checkinsRoutes from './checkins.routes';
 import followupsRoutes from './followups.routes';
 import reportRoutes from './reports.routes';
 import geocodingRoutes from './geocoding.routes';

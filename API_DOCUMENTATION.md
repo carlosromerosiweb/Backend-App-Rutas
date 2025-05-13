@@ -67,7 +67,7 @@
 ```
 
 ### Cambiar Contraseña
-- **Endpoint:** `PUT /api/auth/change-password`
+- **Endpoint:** `PUT /api/change-password`
 - **Descripción:** Permite al usuario cambiar su contraseña
 - **Headers requeridos:** `Authorization: Bearer <token>`
 - **Ejemplo de petición:**

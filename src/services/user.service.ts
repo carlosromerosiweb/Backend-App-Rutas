@@ -51,6 +51,31 @@ class UserService {
       return { users: [], total: 0 };
     }
   }
+
+  /**
+   * Obtiene un usuario por su ID
+   * @param id ID del usuario
+   */
+  public async getUserById(id: number): Promise<User | null> {
+    try {
+      const query = `
+        SELECT 
+          id,
+          name,
+          role,
+          email
+        FROM users
+        WHERE id = $1
+      `;
+
+      const result = await this.pool.query(query, [id]);
+      
+      return result.rows[0] || null;
+    } catch (error) {
+      logger.error('Error al obtener usuario por ID:', error);
+      return null;
+    }
+  }
 }
 
 // Exportar una instancia única del servicio

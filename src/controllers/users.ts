@@ -29,4 +29,42 @@ export const getUsers = async (req: Request, res: Response) => {
       message: 'Error al obtener los usuarios'
     });
   }
+};
+
+/**
+ * Obtiene un usuario específico por su ID
+ */
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    if (isNaN(userId)) {
+      res.status(400).json({
+        success: false,
+        message: 'ID de usuario inválido'
+      });
+      return;
+    }
+
+    const result = await userService.getUserById(userId);
+
+    if (!result) {
+      res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    logger.error('Error en getUserById:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener el usuario'
+    });
+  }
 }; 

@@ -255,6 +255,7 @@ class TeamService {
    * Verifica si un usuario tiene permiso para gestionar un equipo
    */
   public async canManageTeam(userId: number, teamId: number): Promise<boolean> {
+    const client = await this.pool.connect();
     try {
       const query = `
         SELECT u.role
@@ -262,7 +263,7 @@ class TeamService {
         WHERE u.id = $1
       `;
 
-      const result = await this.pool.query(query, [userId]);
+      const result = await client.query(query, [userId]);
       const user = result.rows[0];
 
       if (!user) return false;
@@ -280,7 +281,7 @@ class TeamService {
           )
         `;
 
-        const teamResult = await this.pool.query(teamQuery, [teamId]);
+        const teamResult = await client.query(teamQuery, [teamId]);
         return teamResult.rows[0].exists;
       }
 
@@ -288,6 +289,142 @@ class TeamService {
     } catch (error) {
       logger.error('Error al verificar permisos de equipo:', error);
       throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Asigna leads a un equipo
+   */
+  public async assignLeadsToTeam(
+    teamId: number,
+    leadIds: number[],
+    userId: number
+  ): Promise<boolean> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Verificar que el equipo existe
+      const teamResult = await client.query(
+        'SELECT id FROM teams WHERE id = $1',
+        [teamId]
+      );
+
+      if (teamResult.rows.length === 0) {
+        throw new Error('Equipo no encontrado');
+      }
+
+      // Verificar que el usuario tiene permisos para gestionar el equipo
+      const canManage = await this.canManageTeam(userId, teamId);
+      if (!canManage) {
+        throw new Error('No tienes permisos para gestionar este equipo');
+      }
+
+      // Actualizar los leads asignados
+      await client.query(
+        'UPDATE leads SET team_id = $1, updated_at = NOW() WHERE id = ANY($2)',
+        [teamId, leadIds]
+      );
+
+      // Registrar en el log
+      await client.query(
+        'INSERT INTO team_logs (team_id, action, details, user_id) VALUES ($1, $2, $3, $4)',
+        [
+          teamId,
+          'assign_leads',
+          JSON.stringify({ leadIds }),
+          userId
+        ]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Obtiene todos los leads asignados a un equipo
+   */
+  public async getTeamLeads(
+    teamId: number,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ leads: any[]; total: number }> {
+    const offset = (page - 1) * limit;
+
+    const result = await this.pool.query(
+      `SELECT l.*, 
+              u.name as assigned_user_name,
+              COUNT(*) OVER() as total_count
+       FROM leads l
+       LEFT JOIN users u ON l.assigned_to = u.id
+       WHERE l.team_id = $1
+       ORDER BY l.created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [teamId, limit, offset]
+    );
+
+    const total = parseInt(result.rows[0]?.total_count || '0');
+    const leads = result.rows.map(row => ({
+      ...row,
+      total_count: undefined
+    }));
+
+    return {
+      leads,
+      total
+    };
+  }
+
+  /**
+   * Elimina la asignación de leads a un equipo
+   */
+  public async removeLeadsFromTeam(
+    teamId: number,
+    leadIds: number[],
+    userId: number
+  ): Promise<boolean> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Verificar que el usuario tiene permisos para gestionar el equipo
+      const canManage = await this.canManageTeam(userId, teamId);
+      if (!canManage) {
+        throw new Error('No tienes permisos para gestionar este equipo');
+      }
+
+      // Actualizar los leads para quitar la asignación al equipo
+      await client.query(
+        'UPDATE leads SET team_id = NULL, updated_at = NOW() WHERE id = ANY($1) AND team_id = $2',
+        [leadIds, teamId]
+      );
+
+      // Registrar en el log
+      await client.query(
+        'INSERT INTO team_logs (team_id, action, details, user_id) VALUES ($1, $2, $3, $4)',
+        [
+          teamId,
+          'remove_leads',
+          JSON.stringify({ leadIds }),
+          userId
+        ]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
   }
 }

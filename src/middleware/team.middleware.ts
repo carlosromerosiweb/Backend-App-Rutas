@@ -16,14 +16,27 @@ export const teamAuthMiddleware = async (
       return;
     }
 
-    const canManage = await teamService.canManageTeam(userId, teamId);
-
-    if (!canManage) {
-      res.status(403).json({ error: 'No tienes permiso para gestionar este equipo' });
+    if (!teamId) {
+      res.status(400).json({ error: 'ID de equipo no válido' });
       return;
     }
 
-    next();
+    try {
+      const canManage = await teamService.canManageTeam(userId, teamId);
+
+      if (!canManage) {
+        res.status(403).json({ error: 'No tienes permiso para gestionar este equipo' });
+        return;
+      }
+
+      next();
+    } catch (error: any) {
+      if (error.message && error.message.includes('timeout')) {
+        res.status(503).json({ error: 'Error de conexión con la base de datos. Por favor, intente nuevamente.' });
+      } else {
+        throw error;
+      }
+    }
   } catch (error) {
     logger.error('Error en teamAuthMiddleware:', error);
     res.status(500).json({ error: 'Error interno del servidor' });

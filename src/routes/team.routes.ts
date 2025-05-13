@@ -46,4 +46,22 @@ router.post(
   teamController.assignUsersToTeam.bind(teamController)
 );
 
+// Rutas para gestionar leads del equipo
+router.post(
+  '/:team_id/leads',
+  teamAuthMiddleware,
+  teamController.assignLeadsToTeam.bind(teamController)
+);
+
+router.get(
+  '/:team_id/leads',
+  teamController.getTeamLeads.bind(teamController)
+);
+
+router.delete(
+  '/:team_id/leads',
+  teamAuthMiddleware,
+  teamController.removeLeadsFromTeam.bind(teamController)
+);
+
 export default router; 

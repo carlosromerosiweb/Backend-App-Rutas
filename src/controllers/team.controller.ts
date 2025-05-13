@@ -163,6 +163,67 @@ export class TeamController {
       }
     }
   }
+
+  /**
+   * Asigna leads a un equipo
+   */
+  public async assignLeadsToTeam(req: Request, res: Response): Promise<void> {
+    try {
+      const teamId = parseInt(req.params.team_id);
+      const { lead_ids } = req.body;
+      const userId = parseInt(req.user?.id as string);
+
+      if (!Array.isArray(lead_ids)) {
+        res.status(400).json({ error: 'lead_ids debe ser un array' });
+        return;
+      }
+
+      const success = await teamService.assignLeadsToTeam(teamId, lead_ids, userId);
+      res.json({ success });
+    } catch (error) {
+      logger.error('Error en assignLeadsToTeam:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+
+  /**
+   * Obtiene los leads asignados a un equipo
+   */
+  public async getTeamLeads(req: Request, res: Response): Promise<void> {
+    try {
+      const teamId = parseInt(req.params.team_id);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      const result = await teamService.getTeamLeads(teamId, page, limit);
+      res.json(result);
+    } catch (error) {
+      logger.error('Error en getTeamLeads:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+
+  /**
+   * Elimina la asignación de leads a un equipo
+   */
+  public async removeLeadsFromTeam(req: Request, res: Response): Promise<void> {
+    try {
+      const teamId = parseInt(req.params.team_id);
+      const { lead_ids } = req.body;
+      const userId = parseInt(req.user?.id as string);
+
+      if (!Array.isArray(lead_ids)) {
+        res.status(400).json({ error: 'lead_ids debe ser un array' });
+        return;
+      }
+
+      const success = await teamService.removeLeadsFromTeam(teamId, lead_ids, userId);
+      res.json({ success });
+    } catch (error) {
+      logger.error('Error en removeLeadsFromTeam:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
 }
 
 export const teamController = new TeamController(); 

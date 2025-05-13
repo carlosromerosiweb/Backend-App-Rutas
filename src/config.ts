@@ -23,6 +23,9 @@ export const config = {
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   googleRedirectUri: process.env.GOOGLE_REDIRECT_URI,
+
+  // Google Maps API configuration (usada también para Places API)
+  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
 }
 
 // Validate required configuration
@@ -31,7 +34,8 @@ const requiredEnvVars = [
   'JWT_SECRET',
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET',
-  'GOOGLE_REDIRECT_URI'
+  'GOOGLE_REDIRECT_URI',
+  'GOOGLE_MAPS_API_KEY'
 ];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 

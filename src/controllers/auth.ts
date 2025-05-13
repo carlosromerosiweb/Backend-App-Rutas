@@ -248,7 +248,23 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
       [hashedNewPassword, userId]
     );
 
-    res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+    // Generar nuevo token
+    const payload: JwtPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    };
+
+    const token = jwt.sign(
+      payload, 
+      config.jwtSecret,
+      { expiresIn: config.jwtExpiresIn } as SignOptions
+    );
+
+    res.status(200).json({ 
+      message: 'Contraseña actualizada exitosamente',
+      token // Incluir el nuevo token en la respuesta
+    });
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
     res.status(500).json({ message: 'Error interno del servidor al cambiar la contraseña' });

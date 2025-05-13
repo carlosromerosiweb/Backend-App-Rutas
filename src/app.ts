@@ -11,6 +11,8 @@ import directionsRoutes from './routes/directions.routes';
 import logsRoutes from './routes/logsRoutes';
 import leadExportRoutes from './routes/leadExportRoutes';
 import routeOptimizationRoutes from './routes/routeOptimization';
+import dashboardRoutes from './routes/dashboard';
+import placesImportRoutes from './routes/placesImport';
 import { ReminderScheduler } from './jobs/reminder.scheduler';
 
 // Create Express application
@@ -37,6 +39,8 @@ app.use('/api/directions', directionsRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/leads/export', leadExportRoutes);
 app.use('/api/routes', routeOptimizationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/leads', placesImportRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

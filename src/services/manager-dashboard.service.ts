@@ -236,60 +236,58 @@ export class ManagerDashboardService {
   /**
    * Exporta datos del equipo a CSV
    */
-  public async exportTeamData(
-    managerId: number, 
-    dateRange: z.infer<typeof dateRangeSchema>,
-    filters: {
-      campaign?: string;
-      status?: string;
-    }
-  ) {
+  public async exportTeamData(managerId: number | null, dateRange: z.infer<typeof dateRangeSchema>, filters: {
+    status?: string;
+    limit?: number;
+  }) {
     const client = await this.pool.connect();
     try {
       const validatedDateRange = dateRangeSchema.parse(dateRange);
       
-      const query = `
+      let query = `
         SELECT 
           l.id,
           l.name as lead_name,
           l.status,
           l.priority,
           l.type,
-          l.campaign,
           l.created_at,
           l.next_followup,
           l.estimated_value,
           u.name as assigned_to,
           t.name as team_name,
-          COUNT(c.id) as total_checkins,
-          COUNT(CASE WHEN c.status IN ('late', 'out_of_zone') THEN 1 END) as delayed_checkins
+          COUNT(DISTINCT c.id) as total_checkins,
+          COUNT(DISTINCT CASE WHEN c.status IN ('late', 'out_of_zone') THEN 1 END) as delayed_checkins
         FROM leads l
-        JOIN users u ON u.id = l.assigned_to
-        JOIN teams t ON t.id = u.team_id
+        LEFT JOIN users u ON u.id = l.assigned_to
+        LEFT JOIN teams t ON t.id = u.team_id
         LEFT JOIN checkins c ON c.lead_id = l.id
-        WHERE EXISTS (
-          SELECT 1 FROM users u2 
-          WHERE u2.team_id = t.id 
-          AND u2.id = $1
-        )
-        AND l.created_at >= $2 AND l.created_at <= $3
-        ${filters.campaign ? 'AND l.campaign = $4' : ''}
-        ${filters.status ? 'AND l.status = $5' : ''}
-        GROUP BY l.id, l.name, l.status, l.priority, l.type, l.campaign, 
-                 l.created_at, l.next_followup, l.estimated_value, 
-                 u.name, t.name
-        ORDER BY l.created_at DESC
+        WHERE l.created_at BETWEEN $1 AND $2
       `;
 
-      const params = [
-        managerId,
-        validatedDateRange.startDate,
-        validatedDateRange.endDate,
-        ...(filters.campaign ? [filters.campaign] : []),
-        ...(filters.status ? [filters.status] : [])
-      ];
+      const queryParams: any[] = [validatedDateRange.startDate, validatedDateRange.endDate];
 
-      const result = await client.query(query, params);
+      if (managerId) {
+        query += ` AND t.manager_id = $${queryParams.length + 1}`;
+        queryParams.push(managerId);
+      }
+
+      if (filters.status) {
+        query += ` AND l.status = $${queryParams.length + 1}`;
+        queryParams.push(filters.status);
+      }
+
+      query += ` 
+        GROUP BY l.id, l.name, l.status, l.priority, l.type, l.created_at, l.next_followup, l.estimated_value, u.name, t.name
+        ORDER BY l.created_at DESC, l.id DESC
+      `;
+
+      if (filters.limit) {
+        query += ` LIMIT $${queryParams.length + 1}`;
+        queryParams.push(filters.limit);
+      }
+
+      const result = await client.query(query, queryParams);
       return result.rows;
     } catch (error) {
       logger.error('Error al exportar datos del equipo:', error);

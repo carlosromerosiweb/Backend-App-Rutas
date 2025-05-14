@@ -3,9 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger';
+import sharp from 'sharp';
 
 const UPLOAD_DIR = 'uploads';
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 
 // Asegurar que el directorio de uploads existe
@@ -41,6 +42,48 @@ export const upload = multer({
     fileSize: MAX_FILE_SIZE
   }
 });
+
+// Función para comprimir imágenes
+export const compressImage = async (filePath: string): Promise<string> => {
+  const ext = path.extname(filePath).toLowerCase();
+  
+  // Solo comprimir imágenes
+  if (ext === '.pdf') {
+    return filePath;
+  }
+
+  try {
+    const compressedPath = filePath.replace(ext, `_compressed${ext}`);
+    await sharp(filePath)
+      .jpeg({ quality: 80 }) // Comprimir a calidad 80%
+      .toFile(compressedPath);
+    
+    // Eliminar archivo original
+    fs.unlinkSync(filePath);
+    
+    return compressedPath;
+  } catch (error) {
+    logger.error('Error al comprimir imagen:', error);
+    return filePath; // Si falla la compresión, devolver el original
+  }
+};
+
+// Función para guardar archivos
+export const saveFiles = async (files: Express.Multer.File[]): Promise<string[]> => {
+  const savedPaths: string[] = [];
+  
+  for (const file of files) {
+    try {
+      const filePath = path.join(UPLOAD_DIR, file.filename);
+      const compressedPath = await compressImage(filePath);
+      savedPaths.push(`/${compressedPath}`);
+    } catch (error) {
+      logger.error('Error al guardar archivo:', error);
+    }
+  }
+  
+  return savedPaths;
+};
 
 export class FileService {
   /**

@@ -10,7 +10,7 @@ const router = Router();
 router.use(authenticate);
 
 // Rutas de check-ins manuales
-router.post('/', createCheckin as RequestHandler);
+router.post('/', upload.array('files', 5), createCheckin as RequestHandler);
 router.get('/lead/:leadId', getCheckinsByLead as RequestHandler);
 router.get('/', getCheckins as RequestHandler);
 

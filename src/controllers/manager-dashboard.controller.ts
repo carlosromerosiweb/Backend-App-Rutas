@@ -13,8 +13,8 @@ const dateRangeSchema = z.object({
 });
 
 const exportFiltersSchema = z.object({
-  campaign: z.string().optional(),
   status: z.string().optional(),
+  limit: z.string().optional().transform(val => val ? parseInt(val) : undefined)
 });
 
 export class ManagerDashboardController {
@@ -66,14 +66,51 @@ export class ManagerDashboardController {
    */
   public async exportTeamData(req: Request, res: Response): Promise<void> {
     try {
-      const managerId = parseInt(req.user?.id as string);
+      const userId = parseInt(req.user?.id as string);
+      const userRole = req.user?.role?.toLowerCase();
+
+      // Establecer fechas por defecto si no se proporcionan
+      const defaultEndDate = new Date().toISOString().split('T')[0];
+      const defaultStartDate = new Date();
+      defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
+      const defaultStartDateStr = defaultStartDate.toISOString().split('T')[0];
+
       const dateRange = dateRangeSchema.parse({
-        startDate: req.query.startDate as string,
-        endDate: req.query.endDate as string,
+        startDate: (req.query.startDate as string) || defaultStartDateStr,
+        endDate: (req.query.endDate as string) || defaultEndDate,
       });
       const filters = exportFiltersSchema.parse(req.query);
 
-      const data = await managerDashboardService.exportTeamData(managerId, dateRange, filters);
+      // Si es admin, no necesitamos un managerId específico
+      const data = await managerDashboardService.exportTeamData(
+        userRole === 'admin' ? null : userId,
+        dateRange,
+        filters
+      );
+
+      // Formatear las fechas en los datos
+      const formattedData = data.map(lead => ({
+        ...lead,
+        created_at: new Date(lead.created_at).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(',', ''),
+        next_followup: lead.next_followup ? new Date(lead.next_followup).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).replace(',', '') : 'No programado',
+        estimated_value: lead.estimated_value ? `${lead.estimated_value}€` : 'No especificado',
+        assigned_to: lead.assigned_to || 'No asignado',
+        team_name: lead.team_name || 'No asignado',
+        total_checkins: lead.total_checkins || '0',
+        delayed_checkins: lead.delayed_checkins || '0'
+      }));
 
       // Crear directorio de exportaciones si no existe
       const exportDir = path.join(__dirname, '../../exports');
@@ -83,7 +120,7 @@ export class ManagerDashboardController {
 
       // Generar nombre de archivo único
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `team_export_${managerId}_${timestamp}.csv`;
+      const filename = `team_export_${userRole === 'admin' ? 'all' : userId}_${timestamp}.csv`;
       const filepath = path.join(exportDir, filename);
 
       // Configurar escritor CSV
@@ -95,7 +132,6 @@ export class ManagerDashboardController {
           { id: 'status', title: 'Estado' },
           { id: 'priority', title: 'Prioridad' },
           { id: 'type', title: 'Tipo' },
-          { id: 'campaign', title: 'Campaña' },
           { id: 'created_at', title: 'Fecha de Creación' },
           { id: 'next_followup', title: 'Próximo Seguimiento' },
           { id: 'estimated_value', title: 'Valor Estimado' },
@@ -107,11 +143,12 @@ export class ManagerDashboardController {
       });
 
       // Escribir datos al CSV
-      await csvWriter.writeRecords(data);
+      await csvWriter.writeRecords(formattedData);
 
       // Registrar exportación
       logger.info('Exportación de datos del equipo', {
-        managerId,
+        userId,
+        userRole,
         dateRange,
         filters,
         filename,

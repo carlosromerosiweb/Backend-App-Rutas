@@ -4,6 +4,7 @@ import { JwtPayload } from '../types';
 import { checkInService } from '../services/checkin.service';
 import { AutoCheckInRequest } from '../types/checkin.types';
 import { logger } from '../utils/logger';
+import { saveFiles } from '../services/file.service';
 
 interface CheckinRequest {
   lead_id: number;
@@ -22,7 +23,7 @@ export const createCheckin = async (req: AuthenticatedRequest, res: Response) =>
   const client = await pool.connect();
   
   try {
-    const { lead_id, location_lat, location_lng, status, notes, attachment_urls } = req.body as CheckinRequest;
+    const { lead_id, location_lat, location_lng, status, notes } = req.body as CheckinRequest;
     const user_id = req.user.userId;
 
     // Validar que el lead existe y pertenece al comercial
@@ -37,13 +38,19 @@ export const createCheckin = async (req: AuthenticatedRequest, res: Response) =>
       });
     }
 
+    // Procesar archivos adjuntos si existen
+    let attachmentUrls: string[] = [];
+    if (req.files && (req.files as Express.Multer.File[]).length > 0) {
+      attachmentUrls = await saveFiles(req.files as Express.Multer.File[]);
+    }
+
     const result = await client.query(
       `INSERT INTO checkins (
         user_id, lead_id, location_lat, location_lng, 
-        status, notes, attachment_urls
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
+        status, notes, attachment_urls, check_in_type
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'manual') 
       RETURNING *`,
-      [user_id, lead_id, location_lat, location_lng, status, notes, attachment_urls]
+      [user_id, lead_id, location_lat, location_lng, status, notes, attachmentUrls]
     );
 
     res.status(201).json(result.rows[0]);

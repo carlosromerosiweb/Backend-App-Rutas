@@ -1,4 +1,4 @@
-                                                OBTENER DASHBOARD DE ADMIN
+                                                        OBTENER DASHBOARD DE ADMIN
 
 GET http://0.0.0.0:8000/api/dashboard/overview
     
@@ -82,7 +82,7 @@ GET http://0.0.0.0:8000/api/dashboard/overview
             }
         }
 
-                                                        OBTENER DASHBOARD DE MANAGER
+                                                        OBTENER DASHBOARD DE MANAGER (también accesible para admin)
 
 GET http://0.0.0.0:8000/api/dashboard/manager/overview
     
@@ -172,3 +172,17 @@ GET http://0.0.0.0:8000/api/dashboard/manager/overview
             ],
             "delayedCheckins": []
         }
+
+                                                            EXPORTAR DASHBOARD
+
+GET http://0.0.0.0:8000/api/dashboard/manager/export por defecto recoge datos de hoy a 1 mes para atrás, y obtiene TODOS los leads
+    http://0.0.0.0:8000/api/dashboard/manager/export?startDate=2024-01-01&endDate=2024-12-31 para especificar fecha
+    http://0.0.0.0:8000/api/dashboard/manager/export?limit=4 para limitar los leads que se obtienen
+    Response
+        ID,Nombre del Lead,Estado,Prioridad,Tipo,Fecha de Creación,Próximo Seguimiento,Valor Estimado,Asignado a,Equipo,Total Check-ins,Check-ins Retrasados
+        124,Donde Michel,nuevo,media,empresa,13/05/2025 09:17,No programado,No especificado,No asignado,No asignado,0,0
+        123,Restaurante Gibraltar,nuevo,media,empresa,13/05/2025 09:17,No programado,No especificado,No asignado,No asignado,0,0
+        122,Santa Canela,nuevo,media,empresa,13/05/2025 09:17,No programado,No especificado,No asignado,No asignado,0,0
+        121,Casa D Diego,nuevo,media,empresa,13/05/2025 09:17,No programado,No especificado,No asignado,No asignado,0,0
+
+

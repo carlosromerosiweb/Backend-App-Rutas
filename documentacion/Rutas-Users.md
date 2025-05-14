@@ -129,3 +129,21 @@ DELETE http://0.0.0.0:8000/api/users/:id
             "message": "Usuario eliminado exitosamente"
         }
 
+                                                        CAMBIAR ROL DE USUARIO (disponible solo para admins)
+PUT http://0.0.0.0:8000/api/users/:userId/role
+    Body
+        {
+            "role": "manager"
+        }
+
+    Response
+        {
+            "success": true,
+            "message": "Rol de usuario actualizado exitosamente",
+            "user": {
+                "id": 10,
+                "email": "a@a.com",
+                "name": "Antonio Lobato",
+                "role": "manager"
+            }
+        }

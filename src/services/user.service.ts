@@ -117,6 +117,36 @@ class UserService {
       client.release();
     }
   }
+
+  /**
+   * Actualiza el rol de un usuario
+   */
+  async updateUserRole(userId: number, role: string): Promise<User | null> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Actualizar el rol del usuario
+      const result = await client.query(
+        'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, email, name, role',
+        [role, userId]
+      );
+
+      await client.query('COMMIT');
+
+      if (result.rows.length === 0) {
+        return null;
+      }
+
+      return result.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error('Error en updateUserRole:', error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 // Exportar una instancia única del servicio

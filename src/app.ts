@@ -17,6 +17,7 @@ import managerDashboardRoutes from './routes/manager-dashboard.routes';
 import routeManagementRoutes from './routes/route.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { ReminderScheduler } from './jobs/reminder.scheduler';
+import notificationsRouter from './routes/notifications';
 
 // Create Express application
 const app: Application = express();
@@ -37,6 +38,7 @@ app.use('/api', routes);
 app.use('/', routes);
 
 // Rutas protegidas
+app.use('/api/notifications', notificationsRouter);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/directions', directionsRoutes);
 app.use('/api/logs', logsRoutes);

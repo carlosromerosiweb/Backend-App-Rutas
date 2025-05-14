@@ -212,7 +212,7 @@ class NotificationService {
             // Actualizar campos last_used de los tokens utilizados
             if (success) {
               await this.pool.query(
-                'UPDATE device_tokens SET last_used = CURRENT_TIMESTAMP WHERE user_id = $1 AND token = ANY($2)',
+                'UPDATE device_tokens SET last_used = CURRENT_TIMESTAMP WHERE user_id = $1 AND token = ANY($2::text[])',
                 [notification.user_id, tokens]
               );
             }

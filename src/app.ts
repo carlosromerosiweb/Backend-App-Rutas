@@ -14,6 +14,8 @@ import routeOptimizationRoutes from './routes/routeOptimization';
 import dashboardRoutes from './routes/dashboard';
 import gamificationRoutes from './routes/gamification.routes';
 import managerDashboardRoutes from './routes/manager-dashboard.routes';
+import routeManagementRoutes from './routes/route.routes';
+import { errorHandler } from './middleware/error.middleware';
 import { ReminderScheduler } from './jobs/reminder.scheduler';
 
 // Create Express application
@@ -43,6 +45,10 @@ app.use('/api/routes', routeOptimizationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/dashboard/manager', managerDashboardRoutes);
+app.use('/api/route-management', routeManagementRoutes);
+
+// Middleware de manejo de errores (debe ir al final)
+app.use(errorHandler);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

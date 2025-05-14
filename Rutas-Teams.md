@@ -16,6 +16,78 @@ POST http://0.0.0.0:8000/api/teams
             "updated_at": "2025-05-14T05:15:27.830Z"
         }
 
+                                                                       ACTUALIZAR EQUIPO
+
+PUT http://0.0.0.0:8000/api/teams/:id
+    Body
+        {
+            "name": "el super equipo",
+            "description": "Nueva Descripción"
+        }
+    
+    Response
+        {
+            "id": 3,
+            "name": "el super equipo",
+            "description": "Nueva Descripción",
+            "created_at": "2025-05-13T11:43:16.693Z",
+            "updated_at": "2025-05-13T11:43:16.693Z"
+        }
+
+                                                                         BORRAR EQUIPO
+
+DELETE http://0.0.0.0:8000/api/teams/4
+    Response
+        {
+            "message": "Equipo eliminado exitosamente",
+            "team_id": 7
+        }
+
+                                                                        OBTENER EQUIPOS
+
+GET http://0.0.0.0:8000/api/teams          o http://0.0.0.0:8000/api/teams/:id para obtener el equipo según el ID
+    Response 
+        {
+            "teams": [
+                {
+                    "id": 6,
+                    "name": "Equipo Alpha",
+                    "description": null,
+                    "created_at": "2025-05-14T05:54:39.884Z",
+                    "updated_at": "2025-05-14T05:54:39.884Z"
+                },
+                {
+                    "id": 5,
+                    "name": "equipo peobADNO",
+                    "description": "adisos",
+                    "created_at": "2025-05-14T05:15:27.830Z",
+                    "updated_at": "2025-05-14T05:15:27.830Z"
+                },
+                {
+                    "id": 4,
+                    "name": "equipo q despide",
+                    "description": "adios",
+                    "created_at": "2025-05-13T11:43:31.153Z",
+                    "updated_at": "2025-05-13T11:43:31.153Z"
+                },
+                {
+                    "id": 3,
+                    "name": "equipo 4q saluda",
+                    "description": "hola",
+                    "created_at": "2025-05-13T11:43:16.693Z",
+                    "updated_at": "2025-05-13T11:43:16.693Z"
+                },
+                {
+                    "id": 1,
+                    "name": "equipo q saluda",
+                    "description": "hola",
+                    "created_at": "2025-05-13T11:36:15.967Z",
+                    "updated_at": "2025-05-13T11:36:15.967Z"
+                }
+            ],
+            "total": 5
+        }
+
                                                                       ASIGNAR USUARIOS A EQUIPO
 
 POST http://0.0.0.0:8000/api/teams/:id/users
@@ -29,6 +101,24 @@ POST http://0.0.0.0:8000/api/teams/:id/users
             "message": "Usuarios asignados correctamente"
         }
 
+                                                                     DESASIGNAR USUARIOS DE EQUIPO
+
+DELETE http://0.0.0.0:8000/api/teams/:id/users
+    Body
+        {
+            "user_ids": [33]  
+        }
+
+    Response
+        {
+            "message": "Usuarios desasignados correctamente",
+            "team_id": 1,
+            "removed_users": [
+                33
+            ]
+        }
+
+
                                                                         ASIGNAR LEADS A EQUIPO
 
 POST http://0.0.0.0:8000/api/teams/:id/leads
@@ -40,6 +130,19 @@ POST http://0.0.0.0:8000/api/teams/:id/leads
     Response
         {
             "success": true
+        }
+
+                                                                        ELIMINAR LEADS DEL EQUIPO
+
+DELETE http://0.0.0.0:8000/api/teams/:id/leads
+    Body
+        {
+            "lead_ids": [15]
+        }
+
+    Response
+        {
+            "message": "Leads eliminados del equipo exitosamente"
         }
 
                                                                         OBTENER LEADS DE UN EQUIPO

@@ -56,6 +56,13 @@ router.post(
   teamController.assignUsersToTeam.bind(teamController)
 );
 
+router.delete(
+  '/:team_id/users',
+  teamRoleMiddleware(['admin', 'manager']),
+  teamAuthMiddleware,
+  teamController.removeUsersFromTeam.bind(teamController)
+);
+
 // Rutas para gestionar leads del equipo
 router.post(
   '/:team_id/leads',

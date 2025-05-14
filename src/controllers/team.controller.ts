@@ -112,7 +112,11 @@ export class TeamController {
         return;
       }
 
-      res.status(204).send();
+      logger.info(`Equipo ${teamId} eliminado exitosamente por el usuario ${userId}`);
+      res.status(200).json({ 
+        message: 'Equipo eliminado exitosamente',
+        team_id: teamId
+      });
     } catch (error) {
       logger.error('Error en deleteTeam:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
@@ -222,6 +226,42 @@ export class TeamController {
     } catch (error) {
       logger.error('Error en removeLeadsFromTeam:', error);
       res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  }
+
+  /**
+   * Desasigna usuarios de un equipo
+   */
+  public async removeUsersFromTeam(req: Request, res: Response): Promise<void> {
+    try {
+      const teamId = parseInt(req.params.team_id);
+      const validatedData = assignUsersSchema.parse(req.body);
+      const userId = parseInt(req.user?.id as string);
+      
+      const success = await teamService.removeUsersFromTeam(
+        teamId,
+        validatedData.user_ids,
+        userId
+      );
+      
+      if (!success) {
+        res.status(404).json({ error: 'Equipo no encontrado' });
+        return;
+      }
+
+      logger.info(`Usuarios ${validatedData.user_ids.join(', ')} desasignados del equipo ${teamId} por el usuario ${userId}`);
+      res.status(200).json({ 
+        message: 'Usuarios desasignados correctamente',
+        team_id: teamId,
+        removed_users: validatedData.user_ids
+      });
+    } catch (error) {
+      logger.error('Error en removeUsersFromTeam:', error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: 'Error interno del servidor' });
+      }
     }
   }
 }

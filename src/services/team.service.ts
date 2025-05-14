@@ -162,33 +162,62 @@ class TeamService {
    * Elimina un equipo
    */
   public async deleteTeam(id: number, userId: number): Promise<boolean> {
+    const client = await this.pool.connect();
     try {
+      await client.query('BEGIN');
+
       // Obtener información del equipo antes de eliminarlo
       const teamQuery = 'SELECT * FROM teams WHERE id = $1';
-      const teamResult = await this.pool.query(teamQuery, [id]);
+      const teamResult = await client.query(teamQuery, [id]);
       const team = teamResult.rows[0];
 
-      const query = `
+      if (!team) {
+        await client.query('ROLLBACK');
+        return false;
+      }
+
+      // Registrar la acción en los logs antes de eliminar
+      await teamLogService.logAction(
+        id,
+        userId,
+        TeamAction.DELETE,
+        { deleted_team: team }
+      );
+
+      // Eliminar registros de logs del equipo
+      await client.query(
+        'DELETE FROM team_logs WHERE team_id = $1',
+        [id]
+      );
+
+      // Liberar usuarios del equipo
+      await client.query(
+        'UPDATE users SET team_id = NULL WHERE team_id = $1',
+        [id]
+      );
+
+      // Liberar leads del equipo
+      await client.query(
+        'UPDATE leads SET team_id = NULL WHERE team_id = $1',
+        [id]
+      );
+
+      // Eliminar el equipo
+      const deleteQuery = `
         DELETE FROM teams
         WHERE id = $1
       `;
 
-      const result = await this.pool.query(query, [id]);
+      const result = await client.query(deleteQuery, [id]);
       
-      if (result.rowCount && result.rowCount > 0) {
-        // Registrar la acción en los logs
-        await teamLogService.logAction(
-          id,
-          userId,
-          TeamAction.DELETE,
-          { deleted_team: team }
-        );
-      }
-
+      await client.query('COMMIT');
       return result.rowCount ? result.rowCount > 0 : false;
     } catch (error) {
+      await client.query('ROLLBACK');
       logger.error('Error al eliminar equipo:', error);
       throw error;
+    } finally {
+      client.release();
     }
   }
 
@@ -422,6 +451,62 @@ class TeamService {
       return true;
     } catch (error) {
       await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Desasigna usuarios de un equipo
+   */
+  public async removeUsersFromTeam(
+    teamId: number,
+    userIds: number[],
+    removedBy: number
+  ): Promise<boolean> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Verificar que el equipo existe
+      const teamResult = await client.query(
+        'SELECT id FROM teams WHERE id = $1',
+        [teamId]
+      );
+
+      if (teamResult.rows.length === 0) {
+        throw new Error('Equipo no encontrado');
+      }
+
+      // Verificar que el usuario tiene permisos para gestionar el equipo
+      const canManage = await this.canManageTeam(removedBy, teamId);
+      if (!canManage) {
+        throw new Error('No tienes permisos para gestionar este equipo');
+      }
+
+      // Desasignar usuarios del equipo
+      await client.query(
+        'UPDATE users SET team_id = NULL WHERE id = ANY($1) AND team_id = $2',
+        [userIds, teamId]
+      );
+
+      // Registrar en el log
+      await client.query(
+        'INSERT INTO team_logs (team_id, action, details, user_id) VALUES ($1, $2, $3, $4)',
+        [
+          teamId,
+          'remove_users',
+          JSON.stringify({ userIds }),
+          removedBy
+        ]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error('Error al desasignar usuarios del equipo:', error);
       throw error;
     } finally {
       client.release();

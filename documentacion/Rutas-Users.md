@@ -19,6 +19,17 @@ POST http://0.0.0.0:8000/api/login
             }
         }
 
+                                                                            LOGOUT
+
+POST http://0.0.0.0:8000/api/logout
+    Body
+        // debe ir vacío
+
+    Response
+        {
+            "success": true,
+            "message": "Sesión cerrada exitosamente"
+        }
 
                                                                             REGISTER
 

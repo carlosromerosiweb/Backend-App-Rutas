@@ -4,6 +4,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import pool from '../db';
 import { config } from '../config';
 import { RegisterUserDto, LoginUserDto, User, JwtPayload, AuthResponse, ChangePasswordDto } from '../types';
+import { logger } from '../utils/logger';
 
 /**
  * Register a new user
@@ -271,5 +272,42 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
     res.status(500).json({ message: 'Error interno del servidor al cambiar la contraseña' });
+  }
+};
+
+/**
+ * Realiza el logout del usuario
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    
+    if (!userId) {
+      res.status(401).json({ message: 'No autorizado' });
+      return;
+    }
+
+    // Limpiar el refresh token del usuario
+    await pool.query(
+      'UPDATE users SET refresh_token = NULL WHERE id = $1',
+      [userId]
+    );
+
+    // Registrar el evento de logout
+    logger.info('Usuario ha cerrado sesión', {
+      userId,
+      timestamp: new Date().toISOString()
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Sesión cerrada exitosamente'
+    });
+  } catch (error) {
+    logger.error('Error en logout:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al cerrar sesión'
+    });
   }
 };

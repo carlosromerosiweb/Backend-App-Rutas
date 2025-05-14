@@ -1,8 +1,80 @@
 
+                                                                      CREAR LEAD
 
+POST http://0.0.0.0:8000/api/leads
+    Body
+        {
+            "name": "Restaurante La Terraza",
+            "email": "contacto@laterraza.com",
+            "phone": "+34612345678",
+            "address": "Calle Mayor 123, Madrid",
+            "city": "Madrid",
+            "postal_code": "28001",
+            "country": "España",
+            "type": "individual",
+            "status": "nuevo",
+            "priority": "alta",
+            "notes": "Cliente potencial interesado en nuestro servicio premium",
+            "estimated_value": 5000,
+            "coordinates": {
+                "latitude": 40.4168,
+                "longitude": -3.7038
+            },
+            "tags": ["restaurante", "premium", "madrid"]
+        }
+
+    Response
+        {
+            "message": "Lead creado correctamente",
+            "lead": {
+                "id": 130,
+                "name": "Restaurante La Terraza",
+                "email": "contacto@laterraza.com",
+                "phone": "+34612345678",
+                "address": "Calle Mayor 123, Madrid",
+                "city": "Madrid",
+                "postal_code": "28001",
+                "country": "España",
+                "type": "individual",
+                "status": "nuevo",
+                "priority": "alta",
+                "assigned_to": null,
+                "notes": "Cliente potencial interesado en nuestro servicio premium",
+                "estimated_value": "5000.00",
+                "created_at": "2025-05-14T07:19:55.006Z",
+                "updated_at": "2025-05-14T07:19:55.006Z",
+                "last_contact": null,
+                "next_followup": null,
+                "coordinates": {
+                    "latitude": 40.4168,
+                    "longitude": -3.7038
+                },
+                "tags": [
+                    "restaurante",
+                    "premium",
+                    "madrid"
+                ],
+                "place_id": null,
+                "rating": null,
+                "category": null,
+                "latitude": null,
+                "longitude": null,
+                "team_id": null
+            }
+        }
+
+                                                                     ELIMINAR LEAD
+
+DELETE http://0.0.0.0:8000/api/leads/:id
+    Response
+        {
+            "message": "Lead eliminado correctamente"
+        }
                                                                       OBTENER LEADS
 
-GET http://0.0.0.0:8000/api/leads             o GET http://0.0.0.0:8000/api/leads/:id para obtener un lead en concreto
+GET http://0.0.0.0:8000/api/leads             
+    http://0.0.0.0:8000/api/leads/:id para obtener un lead en concreto
+    http://0.0.0.0:8000/api/leads?status=nuevo&priority=media&category=bar los filtros se establecen de esta manera
 
     Response
         {
@@ -85,6 +157,57 @@ PATCH http://0.0.0.0:8000/api/leads/:id/status
                 "latitude": 39.4927329,
                 "longitude": -0.3585983,
                 "team_id": 1
+            }
+        }
+
+                                                                    ACTUALIZAR LEAD
+
+PUT http://0.0.0.0:8000/api/leads/:id
+    Body
+        {
+            "email": "nuevo@laterraza.com",
+            "phone": "+34698765432",
+            "notes": "Actualización de información de contacto",
+            "estimated_value": 7500
+        }
+
+    Response
+        {
+            "message": "Lead actualizado correctamente",
+            "lead": {
+                "id": 130,
+                "name": "Restaurante La Terraza",
+                "email": "nuevo@laterraza.com",
+                "phone": "+34698765432",
+                "address": "Calle Mayor 123, Madrid",
+                "city": "Madrid",
+                "postal_code": "28001",
+                "country": "España",
+                "type": "individual",
+                "status": "nuevo",
+                "priority": "alta",
+                "assigned_to": null,
+                "notes": "Actualización de información de contacto",
+                "estimated_value": "7500.00",
+                "created_at": "2025-05-14T07:19:55.006Z",
+                "updated_at": "2025-05-14T09:23:56.986Z",
+                "last_contact": null,
+                "next_followup": null,
+                "coordinates": {
+                    "latitude": 40.4168,
+                    "longitude": -3.7038
+                },
+                "tags": [
+                    "restaurante",
+                    "premium",
+                    "madrid"
+                ],
+                "place_id": null,
+                "rating": null,
+                "category": null,
+                "latitude": null,
+                "longitude": null,
+                "team_id": null
             }
         }
 

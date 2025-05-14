@@ -119,20 +119,35 @@ export interface UpdateLeadDto {
  * Filtros para búsqueda de leads
  */
 export interface LeadFilters {
-  status?: LeadStatus;
+  id?: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postal_code?: string;
+  country?: string;
   type?: LeadType;
+  status?: LeadStatus;
   priority?: LeadPriority;
   assigned_to?: number;
-  search?: string;               // Búsqueda por nombre, email, teléfono
-  city?: string;
-  country?: string;
+  notes?: string;
+  estimated_value?: number;
   created_after?: Date;
   created_before?: Date;
   updated_after?: Date;
   updated_before?: Date;
+  last_contact_after?: Date;
+  last_contact_before?: Date;
+  next_followup_after?: Date;
+  next_followup_before?: Date;
   tags?: string[];
-  next_followup_after?: Date;    // Filtro para seguimientos después de una fecha
-  next_followup_before?: Date;   // Filtro para seguimientos antes de una fecha
+  place_id?: string;
+  rating?: number;
+  category?: string;
+  search?: string;               // Búsqueda por nombre, email, teléfono
+  latitude?: number;
+  longitude?: number;
 }
 
 /**

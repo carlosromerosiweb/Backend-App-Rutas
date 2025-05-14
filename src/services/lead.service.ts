@@ -312,64 +312,126 @@ class LeadService {
       };
 
       // Añadir cada filtro como condición
-      if (filters.status) {
-        addCondition('status = $index', filters.status);
+      if (filters.id) {
+        addCondition('id = $index', filters.id);
       }
-      
-      if (filters.type) {
-        addCondition('type = $index', filters.type);
+
+      if (filters.name) {
+        addCondition('name ILIKE $index', `%${filters.name}%`);
       }
-      
-      if (filters.priority) {
-        addCondition('priority = $index', filters.priority);
+
+      if (filters.email) {
+        addCondition('email ILIKE $index', `%${filters.email}%`);
       }
-      
-      if (filters.assigned_to) {
-        addCondition('assigned_to = $index', filters.assigned_to);
+
+      if (filters.phone) {
+        addCondition('phone ILIKE $index', `%${filters.phone}%`);
       }
-      
+
+      if (filters.address) {
+        addCondition('address ILIKE $index', `%${filters.address}%`);
+      }
+
       if (filters.city) {
         addCondition('city ILIKE $index', `%${filters.city}%`);
       }
-      
+
+      if (filters.postal_code) {
+        addCondition('postal_code = $index', filters.postal_code);
+      }
+
       if (filters.country) {
         addCondition('country ILIKE $index', `%${filters.country}%`);
       }
-      
+
+      if (filters.type) {
+        addCondition('type = $index', filters.type);
+      }
+
+      if (filters.status) {
+        addCondition('status = $index', filters.status);
+      }
+
+      if (filters.priority) {
+        addCondition('priority = $index', filters.priority);
+      }
+
+      if (filters.assigned_to) {
+        addCondition('assigned_to = $index', filters.assigned_to);
+      }
+
+      if (filters.notes) {
+        addCondition('notes ILIKE $index', `%${filters.notes}%`);
+      }
+
+      if (filters.estimated_value) {
+        addCondition('estimated_value = $index', filters.estimated_value);
+      }
+
+      if (filters.place_id) {
+        addCondition('place_id = $index', filters.place_id);
+      }
+
+      if (filters.rating) {
+        addCondition('rating = $index', filters.rating);
+      }
+
+      if (filters.category) {
+        addCondition('category = $index', filters.category);
+      }
+
+      // Filtros de coordenadas
+      if (filters.latitude && filters.longitude) {
+        addCondition('coordinates->>\'latitude\' = $index AND coordinates->>\'longitude\' = $index', 
+          [filters.latitude.toString(), filters.longitude.toString()]);
+      } else if (filters.latitude) {
+        addCondition('coordinates->>\'latitude\' = $index', filters.latitude.toString());
+      } else if (filters.longitude) {
+        addCondition('coordinates->>\'longitude\' = $index', filters.longitude.toString());
+      }
+
+      // Filtros de fechas
       if (filters.created_after) {
         addCondition('created_at >= $index', filters.created_after);
       }
-      
+
       if (filters.created_before) {
         addCondition('created_at <= $index', filters.created_before);
       }
-      
+
       if (filters.updated_after) {
         addCondition('updated_at >= $index', filters.updated_after);
       }
-      
+
       if (filters.updated_before) {
         addCondition('updated_at <= $index', filters.updated_before);
       }
-      
-      // Buscar en múltiples campos (nombre, email, teléfono)
-      if (filters.search) {
-        addCondition('(name ILIKE $index OR email ILIKE $index OR phone ILIKE $index)', 
-          `%${filters.search}%`);
+
+      if (filters.last_contact_after) {
+        addCondition('last_contact >= $index', filters.last_contact_after);
       }
-      
+
+      if (filters.last_contact_before) {
+        addCondition('last_contact <= $index', filters.last_contact_before);
+      }
+
+      if (filters.next_followup_after) {
+        addCondition('next_followup >= $index', filters.next_followup_after);
+      }
+
+      if (filters.next_followup_before) {
+        addCondition('next_followup <= $index', filters.next_followup_before);
+      }
+
       // Búsqueda por tags
       if (filters.tags && filters.tags.length > 0) {
         addCondition('tags @> $index', filters.tags);
       }
 
-      // Filtros de follow-up
-      if (filters.next_followup_after) {
-        addCondition('next_followup >= $index', filters.next_followup_after);
-      }
-      
-      if (filters.next_followup_before) {
-        addCondition('next_followup <= $index', filters.next_followup_before);
+      // Búsqueda general
+      if (filters.search) {
+        addCondition('(name ILIKE $index OR email ILIKE $index OR phone ILIKE $index OR address ILIKE $index)', 
+          `%${filters.search}%`);
       }
 
       // Construir la cláusula WHERE

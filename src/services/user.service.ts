@@ -76,6 +76,47 @@ class UserService {
       return null;
     }
   }
+
+  /**
+   * Elimina un usuario por su ID
+   */
+  async deleteUser(userId: number): Promise<boolean> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Verificar si el usuario existe
+      const userResult = await client.query(
+        'SELECT id FROM users WHERE id = $1',
+        [userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        return false;
+      }
+
+      // Eliminar referencias en route_leads
+      await client.query(
+        'DELETE FROM route_leads WHERE assigned_by = $1',
+        [userId]
+      );
+
+      // Eliminar el usuario
+      await client.query(
+        'DELETE FROM users WHERE id = $1',
+        [userId]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error('Error en deleteUser:', error);
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 
 // Exportar una instancia única del servicio

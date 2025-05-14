@@ -142,27 +142,41 @@ export const getLeads = async (req: Request, res: Response): Promise<void> => {
     // Aplicar filtros basados en parámetros de consulta
     const filters: any = {};
     
-    // Filtros de estado, tipo y prioridad
-    if (req.query.status) filters.status = req.query.status as string;
+    // Filtros básicos
+    if (req.query.id) filters.id = parseInt(req.query.id as string);
+    if (req.query.name) filters.name = req.query.name as string;
+    if (req.query.email) filters.email = req.query.email as string;
+    if (req.query.phone) filters.phone = req.query.phone as string;
+    if (req.query.address) filters.address = req.query.address as string;
+    if (req.query.city) filters.city = req.query.city as string;
+    if (req.query.postal_code) filters.postal_code = req.query.postal_code as string;
+    if (req.query.country) filters.country = req.query.country as string;
     if (req.query.type) filters.type = req.query.type as string;
+    if (req.query.status) filters.status = req.query.status as string;
     if (req.query.priority) filters.priority = req.query.priority as string;
+    if (req.query.assigned_to) filters.assigned_to = parseInt(req.query.assigned_to as string);
+    if (req.query.notes) filters.notes = req.query.notes as string;
+    if (req.query.estimated_value) filters.estimated_value = parseFloat(req.query.estimated_value as string);
+    if (req.query.place_id) filters.place_id = req.query.place_id as string;
+    if (req.query.rating) filters.rating = parseFloat(req.query.rating as string);
+    if (req.query.category) filters.category = req.query.category as string;
     
-    // Filtro de búsqueda general
+    // Filtros de búsqueda general
     if (req.query.search) filters.search = req.query.search as string;
     
-    // Filtros de ubicación
-    if (req.query.city) filters.city = req.query.city as string;
-    if (req.query.country) filters.country = req.query.country as string;
+    // Filtros de fechas
+    if (req.query.created_after) filters.created_after = new Date(req.query.created_after as string);
+    if (req.query.created_before) filters.created_before = new Date(req.query.created_before as string);
+    if (req.query.updated_after) filters.updated_after = new Date(req.query.updated_after as string);
+    if (req.query.updated_before) filters.updated_before = new Date(req.query.updated_before as string);
+    if (req.query.last_contact_after) filters.last_contact_after = new Date(req.query.last_contact_after as string);
+    if (req.query.last_contact_before) filters.last_contact_before = new Date(req.query.last_contact_before as string);
+    if (req.query.next_followup_after) filters.next_followup_after = new Date(req.query.next_followup_after as string);
+    if (req.query.next_followup_before) filters.next_followup_before = new Date(req.query.next_followup_before as string);
     
-    // Filtros de fechas (convertir a Date)
-    if (req.query.created_after) 
-      filters.created_after = new Date(req.query.created_after as string);
-    if (req.query.created_before)
-      filters.created_before = new Date(req.query.created_before as string);
-    
-    // Filtros de asignación
-    if (req.query.assigned_to) 
-      filters.assigned_to = parseInt(req.query.assigned_to as string);
+    // Filtros de coordenadas
+    if (req.query.latitude) filters.latitude = parseFloat(req.query.latitude as string);
+    if (req.query.longitude) filters.longitude = parseFloat(req.query.longitude as string);
     
     // Si el usuario tiene rol 'comercial', solo mostrar sus leads asignados
     if (req.user && req.user.role === 'comercial') {

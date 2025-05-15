@@ -256,41 +256,73 @@ POST http://0.0.0.0:8000/api/leads/:id/assign
             }
         }
 
-#                                                            IMPORTAR LEADS POR QUERY Y LOCATION //usando API de Google
+#                                                            IMPORTAR LEADS POR GOOGLE //usando API de Google
 
-POST http://0.0.0.0:8000/api/leads/import
+POST http://0.0.0.0:8000/api/leads/import/detailed
     Body
         {
-            "query": "japones",
-            "location": "Vigo España",
-            "maxResults": 2
+        "keyword": "cafeteria",
+        "type": "restaurant",
+        "lat": 42.23,
+        "lng": -8.72,
+        "radius": 5000,
+        "rating_min": 4.0,
+        "open_now": false,
+        "maxResults": 1
         }
 
     Response
         {
-            "message": "Importación completada",
-            "imported": 2,
+            "message": "Importación detallada completada",
+            "imported": 1,
             "skipped": 0,
             "data": [
                 {
-                    "name": "Restaurante Tsuki",
-                    "address": "R. Enrique Xabier Macías, 7, Freixeiro, 36203 Vigo, Pontevedra, España",
+                    "id": 131,
+                    "name": "Restaurante Casa Vella",
+                    "address": "Rúa Pescadería, 1, Bajo Derecha, 36202 Vigo, Pontevedra",
+                    "phone": "986 43 31 21",
                     "coordinates": {
-                        "lat": 42.2271334,
-                        "lng": -8.7263747
+                        "lat": 42.2399228,
+                        "lng": -8.7257081
                     },
-                    "rating": 4.4,
-                    "category": "restaurant"
-                },
-                {
-                    "name": "HYD SUSHI",
-                    "address": "Av. do Fragoso, 90, bajo, Coia, 36210 Vigo, Pontevedra, España",
-                    "coordinates": {
-                        "lat": 42.2130979,
-                        "lng": -8.7391551
-                    },
-                    "rating": 4.4,
-                    "category": "restaurant"
+                    "rating": 4.6,
+                    "category": "restaurant",
+                    "website": "http://restaurantecasavellavigo.com/",
+                    "opening_hours": {
+                        "open_now": true,
+                        "periods": [
+                            {
+                                "close": {
+                                    "day": 1,
+                                    "time": "1600"
+                                },
+                                "open": {
+                                    "day": 1,
+                                    "time": "1200"
+                                }
+                            },
+                            {
+                                "close": {
+                                    "day": 1,
+                                    "time": "2300"
+                                },
+                                "open": {
+                                    "day": 1,
+                                    "time": "2015"
+                                }
+                            }
+                        ],
+                        "weekday_text": [
+                            "Monday: 12:00 – 4:00 PM, 8:15 – 11:00 PM",
+                            "Tuesday: 12:00 – 4:00 PM, 8:15 – 11:00 PM",
+                            "Wednesday: Closed",
+                            "Thursday: 12:00 – 4:00 PM, 8:15 – 11:00 PM",
+                            "Friday: 12:00 – 4:00 PM, 8:15 – 11:00 PM",
+                            "Saturday: 12:30 – 4:00 PM, 8:15 – 11:00 PM",
+                            "Sunday: Closed"
+                        ]
+                    }
                 }
             ]
         }

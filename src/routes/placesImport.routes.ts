@@ -17,4 +17,16 @@ router.post(
   placesImportController.importPlaces
 );
 
+/**
+ * @route POST /api/leads/import/detailed
+ * @desc Importa leads con información detallada desde Google Places API
+ * @access Privado (requiere autenticación y rol admin)
+ */
+router.post(
+  '/detailed',
+  authenticate,
+  authorize(['admin']),
+  placesImportController.detailedImport
+);
+
 export default router; 

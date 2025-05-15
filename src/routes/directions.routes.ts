@@ -11,4 +11,10 @@ router.get(
   directionsController.getOptimizedRoute
 );
 
+router.get(
+  '/team/:teamId',
+  authenticate,
+  directionsController.getTeamOptimizedRoutes
+);
+
 export default router; 

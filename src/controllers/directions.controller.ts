@@ -22,7 +22,7 @@ export class DirectionsController {
       const userRole = req.user?.role;
 
       // Verificar permisos
-      if (userRole !== 'admin' && userRole !== 'manager' && requestingUserId !== userId) {
+      if (userRole !== 'admin' && userRole !== 'manager' && userRole !== 'comercial' && requestingUserId !== userId) {
         res.status(403).json({
           error: 'No tienes permiso para acceder a esta ruta'
         });
@@ -47,6 +47,40 @@ export class DirectionsController {
         return;
       }
       console.error('Error al obtener ruta optimizada:', error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : 'Error interno del servidor'
+      });
+    }
+  };
+
+  getTeamOptimizedRoutes = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const teamId = parseInt(req.params.teamId);
+      const userRole = req.user?.role;
+
+      // Verificar permisos
+      if (userRole !== 'admin' && userRole !== 'manager') {
+        res.status(403).json({
+          error: 'No tienes permiso para acceder a esta ruta'
+        });
+        return;
+      }
+
+      // Validar parámetros de entrada
+      const params = routeOptimizationSchema.parse(req.query);
+
+      const routes = await this.directionsService.getTeamOptimizedRoutes(
+        teamId,
+        params.date
+      );
+
+      res.json(routes);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: 'Parámetros inválidos', details: error.errors });
+        return;
+      }
+      console.error('Error al obtener rutas optimizadas del equipo:', error);
       res.status(500).json({
         error: error instanceof Error ? error.message : 'Error interno del servidor'
       });

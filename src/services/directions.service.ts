@@ -64,18 +64,13 @@ export class DirectionsService {
       WHERE l.status NOT IN ('ganado', 'perdido')
         AND l.latitude IS NOT NULL
         AND l.longitude IS NOT NULL
+        AND l.assigned_to = $1
     `;
 
-    const params: any[] = [];
+    const params: any[] = [userId];
     
-    // Si es comercial o admin, solo mostrar sus leads asignados
-    if (userRole.toLowerCase() === 'comercial' || userRole.toLowerCase() === 'admin') {
-      query += ` AND l.assigned_to = $1`;
-      params.push(userId);
-    }
-
     if (date) {
-      query += ` AND DATE(l.created_at) = $${params.length + 1}`;
+      query += ` AND DATE(l.created_at) = $2`;
       params.push(date);
     }
 
@@ -224,5 +219,96 @@ export class DirectionsService {
     });
 
     return response;
+  }
+
+  async getTeamOptimizedRoutes(
+    teamId: number,
+    date?: string
+  ): Promise<{ [userId: string]: DirectionsResponse }> {
+    try {
+      // Obtener todos los usuarios del equipo
+      const teamMembersQuery = `
+        SELECT u.id, u.role
+        FROM users u
+        WHERE u.team_id = $1
+      `;
+      const teamMembersResult = await pool.query(teamMembersQuery, [teamId]);
+      const teamMembers = teamMembersResult.rows;
+
+      if (teamMembers.length === 0) {
+        throw new Error('No hay usuarios en este equipo');
+      }
+
+      // Obtener las rutas optimizadas para cada usuario
+      const teamRoutes: { [userId: string]: DirectionsResponse } = {};
+      
+      for (const member of teamMembers) {
+        try {
+          // Usar el mismo método que getOptimizedRoute para cada usuario
+          const leads = await this.getLeadsByUserId(member.id.toString(), member.role, date);
+          
+          if (leads.length === 0) {
+            console.log(`No hay leads para el usuario ${member.id}`);
+            continue;
+          }
+
+          const origin = { 
+            latitude: leads[0].latitude, 
+            longitude: leads[0].longitude 
+          };
+
+          // Dividir los leads en grupos más pequeños
+          const leadGroups = this.chunkArray(leads, this.MAX_WAYPOINTS);
+          let allSteps: RouteStep[] = [];
+          let totalDistance = 0;
+          let totalDuration = 0;
+          let currentOrder = 1;
+
+          // Procesar cada grupo de leads
+          for (const group of leadGroups) {
+            const result = await this.getOptimizedRouteForGroup(group, origin);
+            
+            // Actualizar el orden de los pasos
+            result.steps.forEach(step => {
+              step.order = currentOrder++;
+              allSteps.push(step);
+            });
+
+            totalDistance += result.totalDistance;
+            totalDuration += result.totalDuration;
+          }
+
+          const response: DirectionsResponse = {
+            route_summary: {
+              total_distance: Number((totalDistance / 1000).toFixed(2)),
+              total_duration: Math.round(totalDuration / 60)
+            },
+            steps: allSteps,
+            origin,
+            date: date || new Date().toISOString().split('T')[0]
+          };
+
+          // Registrar en system_logs
+          await this.systemLogService.logRouteOptimization({
+            userId: member.id.toString(),
+            date: date || new Date().toISOString().split('T')[0],
+            leadsProcessed: leads.length,
+            totalDistance: response.route_summary.total_distance,
+            totalDuration: response.route_summary.total_duration
+          });
+
+          teamRoutes[member.id] = response;
+        } catch (error) {
+          console.error(`Error al obtener ruta para usuario ${member.id}:`, error);
+          // Continuamos con el siguiente usuario si hay error
+          continue;
+        }
+      }
+
+      return teamRoutes;
+    } catch (error) {
+      console.error('Error al obtener rutas del equipo:', error);
+      throw error;
+    }
   }
 } 

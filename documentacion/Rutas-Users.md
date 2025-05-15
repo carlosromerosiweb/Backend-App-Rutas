@@ -1,4 +1,4 @@
-                                                                            LOGIN
+#                                                                            LOGIN
 
 POST http://0.0.0.0:8000/api/login
 
@@ -19,7 +19,7 @@ POST http://0.0.0.0:8000/api/login
             }
         }
 
-                                                                            LOGOUT
+#                                                                            LOGOUT
 
 POST http://0.0.0.0:8000/api/logout
     Body
@@ -31,7 +31,7 @@ POST http://0.0.0.0:8000/api/logout
             "message": "Sesión cerrada exitosamente"
         }
 
-                                                                            REGISTER
+#                                                                            REGISTER
 
 POST http://0.0.0.0:8000/api/register
     Body
@@ -53,7 +53,7 @@ POST http://0.0.0.0:8000/api/register
             }
         }
 
-                                                                        CAMBIAR CONTRASEÑA
+#                                                                        CAMBIAR CONTRASEÑA
 
 PUT http://0.0.0.0:8000/api/change-password
     Body
@@ -68,7 +68,7 @@ PUT http://0.0.0.0:8000/api/change-password
             "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzUsInVzZXJJZCI6MzUsImVtYWlsIjoiaG9sYUBob2ZkZmxhLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0NzIwNzQ5NSwiZXhwIjoxNzQ3MjkzODk1fQ.IQYMo9qc07pANjtD29GO2ZV44Df5i_yWg1cNwJ54dsw"
         }
 
-                                                                    OBTENER USUARIO ACTUAL
+#                                                                   OBTENER USUARIO ACTUAL
 
 GET http://0.0.0.0:8000/api/me
     Response
@@ -81,7 +81,7 @@ GET http://0.0.0.0:8000/api/me
             }
         }
 
-                                                                OBTENER TODOS LOS USUARIOS
+#                                                                OBTENER TODOS LOS USUARIOS
 
 GET http://0.0.0.0:8000/api/users            
     http://0.0.0.0:8000/api/users?limit=3 para cambiar el limite de usuarios
@@ -117,7 +117,7 @@ GET http://0.0.0.0:8000/api/users
             }
         }                               //la respuesta devuelve los usuarios especificados en el limit, en este ejemplo están cortados a 3 por comodidad
 
-                                                                 OBTENER USUARIO POR ID
+#                                                                 OBTENER USUARIO POR ID
 
 GET http://0.0.0.0:8000/api/users/2
     Response
@@ -131,7 +131,7 @@ GET http://0.0.0.0:8000/api/users/2
             }
         }
 
-                                                                 ELIMINAR USUARIO
+#                                                                 ELIMINAR USUARIO
 
 DELETE http://0.0.0.0:8000/api/users/:id
     Response
@@ -140,7 +140,7 @@ DELETE http://0.0.0.0:8000/api/users/:id
             "message": "Usuario eliminado exitosamente"
         }
 
-                                                        CAMBIAR ROL DE USUARIO (disponible solo para admins)
+#                                                    CAMBIAR ROL DE USUARIO (disponible solo para admins)
 PUT http://0.0.0.0:8000/api/users/:userId/role
     Body
         {

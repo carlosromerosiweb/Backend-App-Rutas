@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import pool from '../db';
+import { BADGES, Badge } from '../config/badges';
 import { logger } from '../utils/logger';
 
 export class GamificationService {
@@ -68,48 +69,64 @@ export class GamificationService {
   }
 
   // Verificar y otorgar badges
-  private async checkAndAssignBadges(userId: number): Promise<void> {
+  async checkAndAssignBadges(userId: number): Promise<void> {
     try {
-      const result = await this.pool.query(
-        'SELECT points_total FROM user_points WHERE user_id = $1',
-        [userId]
-      );
-      const points = result.rows[0]?.points_total || 0;
+      // Verificar cada badge
+      for (const [key, badge] of Object.entries(BADGES)) {
+        // Verificar si el usuario ya tiene el badge
+        const existingBadge = await this.pool.query(
+          'SELECT * FROM user_badges WHERE user_id = $1 AND badge_name = $2',
+          [userId, badge.id]
+        );
 
-      // Definir umbrales de badges
-      const badgeThresholds = [
-        { points: 100, badge: 'Primer logro' },
-        { points: 500, badge: 'Super comercial' },
-        { points: 1000, badge: 'Leyenda de ventas' }
-      ];
+        // Si el badge es permanente y ya existe, saltamos
+        if (badge.type === 'PERMANENT' && existingBadge.rows.length > 0) {
+          continue;
+        }
 
-      for (const threshold of badgeThresholds) {
-        if (points >= threshold.points) {
-          // Verificar si ya tiene el badge
-          const existingBadge = await this.pool.query(
-            'SELECT id FROM user_badges WHERE user_id = $1 AND badge_name = $2',
-            [userId, threshold.badge]
+        // Verificar si el usuario cumple con la condición del badge
+        const shouldAssign = await badge.checkCondition(userId, this.pool);
+
+        if (shouldAssign) {
+          // Asignar el badge
+          await this.pool.query(
+            'INSERT INTO user_badges (user_id, badge_name, date_earned) VALUES ($1, $2, CURRENT_TIMESTAMP)',
+            [userId, badge.id]
           );
 
-          if (existingBadge.rows.length === 0) {
-            // Otorgar nuevo badge
-            await this.pool.query(
-              `INSERT INTO user_badges (user_id, badge_name, date_earned)
-               VALUES ($1, $2, CURRENT_TIMESTAMP)`,
-              [userId, threshold.badge]
-            );
-
-            // Registrar en system_logs
-            await this.pool.query(
-              `INSERT INTO system_logs (user_id, action, details)
-               VALUES ($1, 'badge_earned', $2)`,
-              [userId, JSON.stringify({ badge: threshold.badge })]
-            );
-          }
+          // Registrar en el log del sistema
+          await this.pool.query(
+            `INSERT INTO system_logs (user_id, action, metadata)
+             VALUES ($1, 'BADGE_EARNED', $2)`,
+            [userId, JSON.stringify({
+              badge_id: badge.id,
+              badge_name: badge.name,
+              badge_type: badge.type
+            })]
+          );
         }
       }
     } catch (error) {
-      logger.error('Error al verificar badges:', error);
+      logger.error('Error checking badges:', error);
+      throw error;
+    }
+  }
+
+  // Obtener badges de un usuario
+  async getUserBadges(userId: number): Promise<any[]> {
+    try {
+      const result = await this.pool.query(
+        'SELECT * FROM user_badges WHERE user_id = $1 ORDER BY date_earned DESC',
+        [userId]
+      );
+
+      // Enriquecer la información de los badges con sus detalles
+      return result.rows.map((badge: { badge_name: string }) => ({
+        ...badge,
+        ...BADGES[badge.badge_name]
+      }));
+    } catch (error) {
+      logger.error('Error getting user badges:', error);
       throw error;
     }
   }
@@ -127,23 +144,6 @@ export class GamificationService {
       return result.rows;
     } catch (error) {
       logger.error('Error al obtener top usuarios:', error);
-      throw error;
-    }
-  }
-
-  // Obtener badges de un usuario
-  async getUserBadges(userId: number): Promise<any[]> {
-    try {
-      const result = await this.pool.query(
-        `SELECT badge_name, date_earned
-         FROM user_badges
-         WHERE user_id = $1
-         ORDER BY date_earned DESC`,
-        [userId]
-      );
-      return result.rows;
-    } catch (error) {
-      logger.error('Error al obtener badges del usuario:', error);
       throw error;
     }
   }

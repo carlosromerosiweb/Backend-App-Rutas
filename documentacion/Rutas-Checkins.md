@@ -1,4 +1,4 @@
-                                                                     OBTENER CHECKINS
+#                                                                     OBTENER CHECKINS
 
 GET http://0.0.0.0:8000/api/checkins
     http://0.0.0.0:8000/api/checkins?userId=35 para filtrar por usuario
@@ -62,7 +62,7 @@ GET http://0.0.0.0:8000/api/checkins
             }
         ]
 
-                                                                    CREAR CHECKIN
+#                                                                    CREAR CHECKIN
 
 Valores posibles para status (a día 14/05): nuevo, seguimiento, ganado, perdido
 POST http://0.0.0.0:8000/api/checkins
@@ -105,7 +105,7 @@ POST http://0.0.0.0:8000/api/checkins
             "distance": null
         }
 
-                                                            CREAR CHECKIN AUTOMATICO
+#                                                            CREAR CHECKIN AUTOMATICO
 
 POST http://0.0.0.0:8000/api/checkins/auto
 
@@ -171,7 +171,7 @@ POST http://0.0.0.0:8000/api/checkins/auto
             }
         }
 
-                                                                OBTENER CHECKINS DE UN LEAD
+#                                                          OBTENER CHECKINS DE UN LEAD
 
 GET http://0.0.0.0:8000/api/checkins/lead/:id
     Body

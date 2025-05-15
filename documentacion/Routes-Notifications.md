@@ -1,5 +1,5 @@
 
-                                                            REGISTRAR NUEVO TOKEN DE TESTEO 
+#                                                            REGISTRAR NUEVO TOKEN DE TESTEO 
                                                         
 POST http://0.0.0.0:8000/api/notifications/register-test-token
     Body
@@ -20,7 +20,7 @@ POST http://0.0.0.0:8000/api/notifications/register-test-token
             }
         }
 
-                                                            REGISTRAR TOKEN DE DISPOSITIVO
+#                                                            REGISTRAR TOKEN DE DISPOSITIVO
 
 POST http://0.0.0.0:8000/api/notifications/register-token
     Body
@@ -45,7 +45,7 @@ POST http://0.0.0.0:8000/api/notifications/register-token
             }
         }
 
-                                                                  CREAR NORIFICACIONES
+#                                                                  CREAR NORIFICACIONES
 
 POST http://0.0.0.0:8000/api/notifications
     Body 
@@ -84,7 +84,7 @@ POST http://0.0.0.0:8000/api/notifications
             }
         }
 
-                                                        OBTENER NOTIFICACIONES DEL USUARIO
+#                                                        OBTENER NOTIFICACIONES DEL USUARIO
 
 GET http://0.0.0.0:8000/api/notifications
     Response
@@ -127,7 +127,7 @@ GET http://0.0.0.0:8000/api/notifications
         }
         }
 
-                                                            MARCAR NOTIFICACION COMO LEIDA
+#                                                            MARCAR NOTIFICACION COMO LEIDA
 
 PUT http://0.0.0.0:8000/api/notifications/:notificationId/read
 
@@ -136,7 +136,7 @@ PUT http://0.0.0.0:8000/api/notifications/:notificationId/read
             "message": "Notificación marcada como leída"
         }
 
-                                                                BORRAR NOTIFICACIÓN
+#                                                                BORRAR NOTIFICACIÓN
 
 DELETE http://0.0.0.0:8000/api/notifications/6
 
@@ -145,7 +145,7 @@ DELETE http://0.0.0.0:8000/api/notifications/6
             "message": "Notificación eliminada correctamente"
         }
 
-                                                            ENVIAR NOTIFICACIÓN PUSH
+#                                                            ENVIAR NOTIFICACIÓN PUSH
 
 POST http://0.0.0.0:8000/api/notifications/send
     Body

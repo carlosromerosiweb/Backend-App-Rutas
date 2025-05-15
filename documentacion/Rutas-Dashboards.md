@@ -1,4 +1,4 @@
-                                                        OBTENER DASHBOARD DE ADMIN
+#                                                        OBTENER DASHBOARD DE ADMIN
 
 GET http://0.0.0.0:8000/api/dashboard/overview
     
@@ -82,7 +82,7 @@ GET http://0.0.0.0:8000/api/dashboard/overview
             }
         }
 
-                                                        OBTENER DASHBOARD DE MANAGER (también accesible para admin)
+#                                                        OBTENER DASHBOARD DE MANAGER (también accesible para admin)
 
 GET http://0.0.0.0:8000/api/dashboard/manager/overview
     
@@ -173,7 +173,7 @@ GET http://0.0.0.0:8000/api/dashboard/manager/overview
             "delayedCheckins": []
         }
 
-                                                            EXPORTAR DASHBOARD
+#                                                            EXPORTAR DASHBOARD
 
 GET http://0.0.0.0:8000/api/dashboard/manager/export por defecto recoge datos de hoy a 1 mes para atrás, y obtiene TODOS los leads
     http://0.0.0.0:8000/api/dashboard/manager/export?startDate=2024-01-01&endDate=2024-12-31 para especificar fecha

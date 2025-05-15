@@ -1,4 +1,4 @@
-                                                                         CREAR EQUIPO
+#                                                                         CREAR EQUIPO
 
 POST http://0.0.0.0:8000/api/teams
     Body
@@ -16,7 +16,7 @@ POST http://0.0.0.0:8000/api/teams
             "updated_at": "2025-05-14T05:15:27.830Z"
         }
 
-                                                                       ACTUALIZAR EQUIPO
+#                                                                       ACTUALIZAR EQUIPO
 
 PUT http://0.0.0.0:8000/api/teams/:id
     Body
@@ -34,7 +34,7 @@ PUT http://0.0.0.0:8000/api/teams/:id
             "updated_at": "2025-05-13T11:43:16.693Z"
         }
 
-                                                                         BORRAR EQUIPO
+#                                                                         BORRAR EQUIPO
 
 DELETE http://0.0.0.0:8000/api/teams/4
     Response
@@ -43,7 +43,7 @@ DELETE http://0.0.0.0:8000/api/teams/4
             "team_id": 7
         }
 
-                                                                        OBTENER EQUIPOS
+#                                                                        OBTENER EQUIPOS
 
 GET http://0.0.0.0:8000/api/teams          o http://0.0.0.0:8000/api/teams/:id para obtener el equipo según el ID
     Response 
@@ -88,7 +88,7 @@ GET http://0.0.0.0:8000/api/teams          o http://0.0.0.0:8000/api/teams/:id p
             "total": 5
         }
 
-                                                                      ASIGNAR USUARIOS A EQUIPO
+#                                                                      ASIGNAR USUARIOS A EQUIPO
 
 POST http://0.0.0.0:8000/api/teams/:id/users
     Body
@@ -101,7 +101,7 @@ POST http://0.0.0.0:8000/api/teams/:id/users
             "message": "Usuarios asignados correctamente"
         }
 
-                                                                     DESASIGNAR USUARIOS DE EQUIPO
+#                                                                     DESASIGNAR USUARIOS DE EQUIPO
 
 DELETE http://0.0.0.0:8000/api/teams/:id/users
     Body
@@ -119,7 +119,7 @@ DELETE http://0.0.0.0:8000/api/teams/:id/users
         }
 
 
-                                                                        ASIGNAR LEADS A EQUIPO
+#                                                                        ASIGNAR LEADS A EQUIPO
 
 POST http://0.0.0.0:8000/api/teams/:id/leads
     Body
@@ -132,7 +132,7 @@ POST http://0.0.0.0:8000/api/teams/:id/leads
             "success": true
         }
 
-                                                                        ELIMINAR LEADS DEL EQUIPO
+#                                                                        ELIMINAR LEADS DEL EQUIPO
 
 DELETE http://0.0.0.0:8000/api/teams/:id/leads
     Body
@@ -145,7 +145,7 @@ DELETE http://0.0.0.0:8000/api/teams/:id/leads
             "message": "Leads eliminados del equipo exitosamente"
         }
 
-                                                                        OBTENER LEADS DE UN EQUIPO
+#                                                                        OBTENER LEADS DE UN EQUIPO
 
 GET http://0.0.0.0:8000/api/teams/:id/leads
 
@@ -220,7 +220,7 @@ GET http://0.0.0.0:8000/api/teams/:id/leads
             "total": 2
         }
 
-                                                                        OBTENER MIEMBROS DE UN EQUIPO
+#                                                                       OBTENER MIEMBROS DE UN EQUIPO
 
 GET http://0.0.0.0:8000/api/teams/:id/members
 

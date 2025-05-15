@@ -59,24 +59,28 @@ export class DirectionsService {
 
   private async getLeadsByUserId(userId: string, userRole: string, date?: string): Promise<Lead[]> {
     let query = `
-      SELECT id, name, address, latitude, longitude, status, assigned_to
-      FROM leads
-      WHERE status NOT IN ('ganado', 'perdido')
-        AND latitude IS NOT NULL
-        AND longitude IS NOT NULL
+      SELECT DISTINCT ON (l.id) l.id, l.name, l.address, l.latitude, l.longitude, l.status, l.assigned_to, l.created_at
+      FROM leads l
+      WHERE l.status NOT IN ('ganado', 'perdido')
+        AND l.latitude IS NOT NULL
+        AND l.longitude IS NOT NULL
     `;
 
     const params: any[] = [];
     
-    if (userRole.toLowerCase() === 'comercial') {
-      query += ` AND assigned_to = $1`;
+    // Si es comercial o admin, solo mostrar sus leads asignados
+    if (userRole.toLowerCase() === 'comercial' || userRole.toLowerCase() === 'admin') {
+      query += ` AND l.assigned_to = $1`;
       params.push(userId);
     }
 
     if (date) {
-      query += ` AND DATE(created_at) = $${params.length + 1}`;
+      query += ` AND DATE(l.created_at) = $${params.length + 1}`;
       params.push(date);
     }
+
+    // Ordenar por fecha de creación para mantener consistencia
+    query += ` ORDER BY l.id, l.created_at DESC`;
 
     const result = await pool.query(query, params);
     return result.rows;

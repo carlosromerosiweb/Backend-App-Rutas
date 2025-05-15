@@ -1,4 +1,5 @@
-                                                            OBTENER RANKING
+#                                                            OBTENER RANKING
+
 GET http://0.0.0.0:8000/api/gamification/rankings
     Response
         {

@@ -1,5 +1,5 @@
 
-                                                                      CREAR LEAD
+#                                                                      CREAR LEAD
 
 POST http://0.0.0.0:8000/api/leads
     Body
@@ -63,14 +63,14 @@ POST http://0.0.0.0:8000/api/leads
             }
         }
 
-                                                                     ELIMINAR LEAD
+#                                                                     ELIMINAR LEAD
 
 DELETE http://0.0.0.0:8000/api/leads/:id
     Response
         {
             "message": "Lead eliminado correctamente"
         }
-                                                                      OBTENER LEADS
+#                                                                      OBTENER LEADS
 
 GET http://0.0.0.0:8000/api/leads             
     http://0.0.0.0:8000/api/leads/:id para obtener un lead en concreto
@@ -116,7 +116,7 @@ GET http://0.0.0.0:8000/api/leads
             }
         }
 
-                                                                CAMBIAR ESTADO DE LEAD
+#                                                                CAMBIAR ESTADO DE LEAD
 
 PATCH http://0.0.0.0:8000/api/leads/:id/status
     Body
@@ -160,7 +160,7 @@ PATCH http://0.0.0.0:8000/api/leads/:id/status
             }
         }
 
-                                                                    ACTUALIZAR LEAD
+#                                                                    ACTUALIZAR LEAD
 
 PUT http://0.0.0.0:8000/api/leads/:id
     Body
@@ -211,7 +211,7 @@ PUT http://0.0.0.0:8000/api/leads/:id
             }
         }
 
-                                                                ASIGNAR LEAD A USUARIO
+#                                                                ASIGNAR LEAD A USUARIO
 
 POST http://0.0.0.0:8000/api/leads/:id/assign
     Body
@@ -256,7 +256,7 @@ POST http://0.0.0.0:8000/api/leads/:id/assign
             }
         }
 
-                                                            IMPORTAR LEADS POR QUERY Y LOCATION //usando API de Google
+#                                                            IMPORTAR LEADS POR QUERY Y LOCATION //usando API de Google
 
 POST http://0.0.0.0:8000/api/leads/import
     Body

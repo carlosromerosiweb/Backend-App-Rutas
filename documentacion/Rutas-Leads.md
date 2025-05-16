@@ -327,4 +327,28 @@ POST http://0.0.0.0:8000/api/leads/import/detailed
             ]
         }
 
+#                                                                           IMPORTAR LEADS DE UN .CSV 
+#                                          (ahora mismo el .csv tiene que tener una estructura completa, pero lo ideal sería más adelante 
+#                                                 modificar el método para que pueda adaptar diferentes estructuras a la nuestra)
 
+POST http://0.0.0.0:8000/api/import/leads
+    Body (en form-data)
+        Key: file        
+        Type: file
+        Value: archivoQueSeQuieraImportar.csv
+
+    Response
+        {
+            "message": "Importación completada",
+            "stats": {
+                "total": 5,
+                "success": 4,
+                "failed": 1
+            },
+            "errors": [
+                {
+                    "line": 1,
+                    "error": "Error al crear el lead en la base de datos"
+                }
+            ]
+        }

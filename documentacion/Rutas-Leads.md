@@ -352,3 +352,22 @@ POST http://0.0.0.0:8000/api/import/leads
                 }
             ]
         }
+
+#                                                                   EXPORTAR LEADS A .CSV
+
+GET http://0.0.0.0:8000/api/leads/export    
+    http://0.0.0.0:8000/api/leads/export?status=nuevo     <== acepta filtros
+    Response
+        ID,Nombre,Email,Teléfono,Dirección,Ciudad,Estado,Prioridad,Fecha creación,Último contacto,Próximo seguimiento,Categoría,Calificación,Latitud,Longitud,Asignado a
+        ID,Nombre,Email,Teléfono,Dirección,Ciudad,Estado,Prioridad,Fecha creación,Último contacto,Próximo seguimiento,Categoría,Calificación,Latitud,Longitud,Asignado a
+        137,Tech Solutions SL,info@techsolutions.com,'+34 956789012,Parque Tecnológico 15,Sevilla,nuevo,alta,2025-05-16 09:38:36,,2024-03-29 00:00:00,,,,,
+        136,ONG Ayuda,info@ongayuda.org,'+34 945678901,Calle Solidaridad 78,Bilbao,nuevo,baja,2025-05-16 09:38:36,,2024-03-28 01:00:00,,,,,
+        135,Gobierno Local,ayuntamiento@ciudad.com,'+34 934567890,Plaza del Ayuntamiento 1,Valencia,nuevo,alta,2025-05-16 09:38:36,,2024-03-27 01:00:00,,,,,
+        134,Juan Pérez,juan.perez@email.com,'+34 623456789,Avenida Libertad 45,Barcelona,nuevo,media,2025-05-16 09:38:35,,2024-03-26 01:00:00,,,,,
+        133,Taberna A Mina,,886 31 24 88,"Rúa San Vicente, 8, 36202 Vigo, Pontevedra",,nuevo,media,2025-05-15 10:32:57,,,bar,4.40,42.2382698,-8.7272146,
+        132,Detapaencepa,,986 47 37 57,"R. do Ecuador, 18, Santiago de Vigo, 36203 Vigo, Pontevedra",,nuevo,media,2025-05-15 10:32:56,,,restaurant,4.60,42.234346,-8.7226465,
+        131,Restaurante Casa Vella,,986 43 31 21,"Rúa Pescadería, 1, Bajo Derecha, 36202 Vigo, Pontevedra",,nuevo,media,2025-05-15 10:32:56,,,restaurant,4.60,42.2399228,-8.7257081,
+        129,HYD SUSHI,,,"Av. do Fragoso, 90, bajo, Coia, 36210 Vigo, Pontevedra, España",,nuevo,media,2025-05-14 08:05:57,,,restaurant,4.40,42.2130979,-8.7391551,37
+        128,Restaurante Tsuki,,,"R. Enrique Xabier Macías, 7, Freixeiro, 36203 Vigo, Pontevedra, España",,nuevo,media,2025-05-14 08:05:56,,,restaurant,4.40,42.2271334,-8.7263747,
+        127,Restaurante La Marmita,,,"C. del Príncipe, 3, Centro, 28012 Madrid, España",,nuevo,media,2025-05-14 08:05:28,,,restaurant,4.10,40.4162528,-3.7002245,
+        126,"JAVIER MARTÍN, COMIDA DELICIOSA, BURGERS & CROQUETAS,CHEESECAKE HOME.",,,"C. de Toledo, 74, Centro, 28005 Madrid, España",,nuevo,media,2025-05-14 08:05:27,,,restaurant,4.60,40.4094079,-3.7100137,

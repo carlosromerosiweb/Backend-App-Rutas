@@ -24,7 +24,7 @@ export class LeadsExportController {
     const logsDir = path.join(process.cwd(), 'logs');
     [tempDir, logsDir].forEach(dir => {
       if (!existsSync(dir)) {
-        mkdirSync(dir);
+        mkdirSync(dir, { recursive: true });
       }
     });
   }
@@ -43,14 +43,18 @@ export class LeadsExportController {
 
       // Validar fechas si se proporcionan
       if (from && !this.isValidDate(from)) {
-        logger.warn('Fecha de inicio inválida:', { from });
-        res.status(400).json({ error: 'Fecha de inicio inválida' });
+        res.status(400).json({ 
+          error: 'Fecha de inicio inválida',
+          message: 'El formato de fecha debe ser YYYY-MM-DD'
+        });
         return;
       }
 
       if (to && !this.isValidDate(to)) {
-        logger.warn('Fecha de fin inválida:', { to });
-        res.status(400).json({ error: 'Fecha de fin inválida' });
+        res.status(400).json({ 
+          error: 'Fecha de fin inválida',
+          message: 'El formato de fecha debe ser YYYY-MM-DD'
+        });
         return;
       }
 
@@ -99,6 +103,7 @@ export class LeadsExportController {
       if (error instanceof z.ZodError) {
         res.status(400).json({
           error: 'Parámetros de consulta inválidos',
+          message: 'Los parámetros proporcionados no son válidos',
           details: error.errors
         });
         return;
@@ -106,6 +111,7 @@ export class LeadsExportController {
 
       res.status(500).json({
         error: 'Error al exportar leads',
+        message: 'Ocurrió un error al procesar la exportación',
         details: error instanceof Error ? error.message : String(error)
       });
     }

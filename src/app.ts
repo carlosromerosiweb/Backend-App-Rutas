@@ -9,7 +9,6 @@ import { JwtPayload } from './types';
 import notificationRoutes from './routes/notifications.routes';
 import directionsRoutes from './routes/directions.routes';
 import logsRoutes from './routes/logsRoutes';
-import leadExportRoutes from './routes/leadExportRoutes';
 import dashboardRoutes from './routes/dashboard';
 import gamificationRoutes from './routes/gamification.routes';
 import managerDashboardRoutes from './routes/manager-dashboard.routes';
@@ -17,6 +16,7 @@ import routeManagementRoutes from './routes/route.routes';
 import { errorHandler } from './middleware/error.middleware';
 import { ReminderScheduler } from './jobs/reminder.scheduler';
 import notificationsRouter from './routes/notifications';
+import leadsRoutes from './routes/leads.routes';
 
 // Create Express application
 const app: Application = express();
@@ -41,11 +41,11 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/directions', directionsRoutes);
 app.use('/api/logs', logsRoutes);
-app.use('/api/leads/export', leadExportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/dashboard/manager', managerDashboardRoutes);
 app.use('/api/route-management', routeManagementRoutes);
+app.use('/api/leads', leadsRoutes);
 
 // Middleware de manejo de errores (debe ir al final)
 app.use(errorHandler);

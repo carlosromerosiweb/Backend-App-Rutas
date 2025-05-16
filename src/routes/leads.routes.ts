@@ -10,7 +10,7 @@ router.get(
   '/export',
   authenticate,
   authorize(['admin', 'manager']),
-  (req, res) => leadsExportController.exportLeads(req, res)
+  leadsExportController.exportLeads.bind(leadsExportController)
 );
 
 export default router; 

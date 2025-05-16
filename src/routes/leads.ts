@@ -15,8 +15,10 @@ import {
   createLeadInteraction,
   getLeadInteractions
 } from '../controllers/leads';
+import { LeadsExportController } from '../controllers/leadsExport.controller';
 
 const router = Router();
+const leadsExportController = new LeadsExportController();
 
 /**
  * @route POST /api/leads
@@ -40,6 +42,18 @@ router.get(
   authenticate,
   checkPermission(Resource.LEADS, Action.READ),
   getLeads
+);
+
+/**
+ * @route GET /api/leads/export
+ * @desc Exporta leads a CSV
+ * @access Privado (requiere autenticación y rol admin/manager)
+ */
+router.get(
+  '/export',
+  authenticate,
+  checkPermission(Resource.LEADS, Action.EXPORT),
+  leadsExportController.exportLeads.bind(leadsExportController)
 );
 
 /**

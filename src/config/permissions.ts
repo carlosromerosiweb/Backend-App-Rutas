@@ -35,6 +35,7 @@ export const rolePermissions = {
     { resource: Resource.USERS, action: Action.MANAGE },
     // Permisos sobre leads
     { resource: Resource.LEADS, action: Action.MANAGE },
+    { resource: Resource.LEADS, action: Action.EXPORT },
     // Permisos sobre rutas
     { resource: Resource.ROUTES, action: Action.MANAGE },
     // Permisos sobre notificaciones
@@ -52,6 +53,7 @@ export const rolePermissions = {
     { resource: Resource.USERS, action: Action.CREATE }, // Solo puede crear comerciales
     // Permisos sobre leads
     { resource: Resource.LEADS, action: Action.MANAGE },
+    { resource: Resource.LEADS, action: Action.EXPORT },
     // Permisos sobre rutas
     { resource: Resource.ROUTES, action: Action.MANAGE },
     { resource: Resource.ROUTES, action: Action.ASSIGN },

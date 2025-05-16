@@ -83,7 +83,8 @@ export class DirectionsService {
 
   private async getGoogleDirections(
     leads: Lead[],
-    origin: { latitude: number; longitude: number }
+    origin: { latitude: number; longitude: number },
+    mode: 'driving' | 'walking' = 'driving'
   ): Promise<GoogleDirectionsResponse> {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
@@ -98,6 +99,7 @@ export class DirectionsService {
       origin: `${origin.latitude},${origin.longitude}`,
       destination: `${origin.latitude},${origin.longitude}`,
       waypoints: `optimize:true|${waypoints}`,
+      mode: mode,
       key: apiKey
     });
 
@@ -117,13 +119,14 @@ export class DirectionsService {
 
   private async getOptimizedRouteForGroup(
     leads: Lead[],
-    origin: { latitude: number; longitude: number }
+    origin: { latitude: number; longitude: number },
+    mode: 'driving' | 'walking' = 'driving'
   ): Promise<{
     steps: RouteStep[];
     totalDistance: number;
     totalDuration: number;
   }> {
-    const googleResponse = await this.getGoogleDirections(leads, origin);
+    const googleResponse = await this.getGoogleDirections(leads, origin, mode);
     const route = googleResponse.routes[0];
     const waypointOrder = route.waypoint_order || [];
     
@@ -267,6 +270,157 @@ export class DirectionsService {
           // Procesar cada grupo de leads
           for (const group of leadGroups) {
             const result = await this.getOptimizedRouteForGroup(group, origin);
+            
+            // Actualizar el orden de los pasos
+            result.steps.forEach(step => {
+              step.order = currentOrder++;
+              allSteps.push(step);
+            });
+
+            totalDistance += result.totalDistance;
+            totalDuration += result.totalDuration;
+          }
+
+          const response: DirectionsResponse = {
+            route_summary: {
+              total_distance: Number((totalDistance / 1000).toFixed(2)),
+              total_duration: Math.round(totalDuration / 60)
+            },
+            steps: allSteps,
+            origin,
+            date: date || new Date().toISOString().split('T')[0]
+          };
+
+          // Registrar en system_logs
+          await this.systemLogService.logRouteOptimization({
+            userId: member.id.toString(),
+            date: date || new Date().toISOString().split('T')[0],
+            leadsProcessed: leads.length,
+            totalDistance: response.route_summary.total_distance,
+            totalDuration: response.route_summary.total_duration
+          });
+
+          teamRoutes[member.id] = response;
+        } catch (error) {
+          console.error(`Error al obtener ruta para usuario ${member.id}:`, error);
+          // Continuamos con el siguiente usuario si hay error
+          continue;
+        }
+      }
+
+      return teamRoutes;
+    } catch (error) {
+      console.error('Error al obtener rutas del equipo:', error);
+      throw error;
+    }
+  }
+
+  async getWalkingOptimizedRoute(
+    userId: string,
+    userRole: string,
+    date?: string,
+    originLat?: number,
+    originLng?: number
+  ): Promise<DirectionsResponse> {
+    const leads = await this.getLeadsByUserId(userId, userRole, date);
+    
+    if (leads.length === 0) {
+      throw new Error('No hay leads con coordenadas válidas para este usuario');
+    }
+
+    const origin = originLat && originLng 
+      ? { latitude: originLat, longitude: originLng }
+      : { latitude: leads[0].latitude, longitude: leads[0].longitude };
+
+    // Dividir los leads en grupos más pequeños
+    const leadGroups = this.chunkArray(leads, this.MAX_WAYPOINTS);
+    let allSteps: RouteStep[] = [];
+    let totalDistance = 0;
+    let totalDuration = 0;
+    let currentOrder = 1;
+
+    // Procesar cada grupo de leads
+    for (const group of leadGroups) {
+      const result = await this.getOptimizedRouteForGroup(group, origin, 'walking');
+      
+      // Actualizar el orden de los pasos
+      result.steps.forEach(step => {
+        step.order = currentOrder++;
+        allSteps.push(step);
+      });
+
+      totalDistance += result.totalDistance;
+      totalDuration += result.totalDuration;
+    }
+
+    const response: DirectionsResponse = {
+      route_summary: {
+        total_distance: Number((totalDistance / 1000).toFixed(2)),
+        total_duration: Math.round(totalDuration / 60)
+      },
+      steps: allSteps,
+      origin,
+      date: date || new Date().toISOString().split('T')[0]
+    };
+
+    // Registrar en system_logs
+    await this.systemLogService.logRouteOptimization({
+      userId,
+      date: date || new Date().toISOString().split('T')[0],
+      leadsProcessed: leads.length,
+      totalDistance: response.route_summary.total_distance,
+      totalDuration: response.route_summary.total_duration
+    });
+
+    return response;
+  }
+
+  async getTeamWalkingOptimizedRoutes(
+    teamId: number,
+    date?: string
+  ): Promise<{ [userId: string]: DirectionsResponse }> {
+    try {
+      // Obtener todos los usuarios del equipo
+      const teamMembersQuery = `
+        SELECT u.id, u.role
+        FROM users u
+        WHERE u.team_id = $1
+      `;
+      const teamMembersResult = await pool.query(teamMembersQuery, [teamId]);
+      const teamMembers = teamMembersResult.rows;
+
+      if (teamMembers.length === 0) {
+        throw new Error('No hay usuarios en este equipo');
+      }
+
+      // Obtener las rutas optimizadas para cada usuario
+      const teamRoutes: { [userId: string]: DirectionsResponse } = {};
+      
+      for (const member of teamMembers) {
+        try {
+          // Usar el método getWalkingOptimizedRoute para cada usuario
+          const leads = await this.getLeadsByUserId(member.id.toString(), member.role, date);
+          
+          if (leads.length === 0) {
+            console.log(`No hay leads para el usuario ${member.id}`);
+            continue;
+          }
+
+          const origin = { 
+            latitude: leads[0].latitude, 
+            longitude: leads[0].longitude 
+          };
+
+          // Dividir los leads en grupos más pequeños
+          const leadGroups = this.chunkArray(leads, this.MAX_WAYPOINTS);
+          let allSteps: RouteStep[] = [];
+          let totalDistance = 0;
+          let totalDuration = 0;
+          let currentOrder = 1;
+
+          // Procesar cada grupo de leads
+          for (const group of leadGroups) {
+            const result = await this.getOptimizedRouteForGroup(group, origin, 'walking');
             
             // Actualizar el orden de los pasos
             result.steps.forEach(step => {

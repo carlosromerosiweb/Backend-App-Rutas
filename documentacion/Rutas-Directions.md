@@ -1,6 +1,7 @@
 #                                                            OBTENER RUTA OPTIMIZADA PARA USUARIO
 
-GET http://0.0.0.0:8000/api/directions/:id
+GET http://0.0.0.0:8000/api/directions/:id                     <== endpoint para ruta  en coche
+    http://0.0.0.0:8000/api/directions/walking/:id             <== endpoint para ruta andando  
     Response
         {
             "route_summary": {
@@ -38,7 +39,8 @@ GET http://0.0.0.0:8000/api/directions/:id
 
 #                                                OBTENER RUTA OPTIMIZADA DE TODOS LOS MIEMBROS DEL EQUIPO
 
-GET http://0.0.0.0:8000/api/directions/team/6
+GET http://0.0.0.0:8000/api/directions/team/6                     <== endpoint para ruta en coche
+    http://0.0.0.0:8000/api/directions/team/walking/6             <== endpoint para ruta andando 
 
     Response
                 {

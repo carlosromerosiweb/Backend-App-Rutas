@@ -17,4 +17,16 @@ router.get(
   directionsController.getTeamOptimizedRoutes
 );
 
+router.get(
+  '/walking/:userId',
+  authenticate,
+  directionsController.getWalkingOptimizedRoute
+);
+
+router.get(
+  '/team/walking/:teamId',
+  authenticate,
+  directionsController.getTeamWalkingOptimizedRoutes
+);
+
 export default router; 

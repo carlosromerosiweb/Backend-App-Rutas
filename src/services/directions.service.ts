@@ -59,11 +59,20 @@ export class DirectionsService {
 
   private async getLeadsByUserId(userId: string, userRole: string, date?: string): Promise<Lead[]> {
     let query = `
-      SELECT DISTINCT ON (l.id) l.id, l.name, l.address, l.latitude, l.longitude, l.status, l.assigned_to, l.created_at
+      SELECT DISTINCT ON (l.id) 
+        l.id, 
+        l.name, 
+        l.address, 
+        (l.coordinates->>'latitude')::float as latitude, 
+        (l.coordinates->>'longitude')::float as longitude, 
+        l.status, 
+        l.assigned_to, 
+        l.created_at
       FROM leads l
       WHERE l.status NOT IN ('ganado', 'perdido')
-        AND l.latitude IS NOT NULL
-        AND l.longitude IS NOT NULL
+        AND l.coordinates IS NOT NULL
+        AND l.coordinates->>'latitude' IS NOT NULL
+        AND l.coordinates->>'longitude' IS NOT NULL
         AND l.assigned_to = $1
     `;
 
@@ -78,6 +87,12 @@ export class DirectionsService {
     query += ` ORDER BY l.id, l.created_at DESC`;
 
     const result = await pool.query(query, params);
+    console.log('Leads obtenidos de la base de datos:', result.rows.map(lead => ({
+      id: lead.id,
+      name: lead.name,
+      status: lead.status,
+      coordinates: { lat: lead.latitude, lng: lead.longitude }
+    })));
     return result.rows;
   }
 
@@ -95,6 +110,8 @@ export class DirectionsService {
       `${lead.latitude},${lead.longitude}`
     ).join('|');
 
+    console.log('Waypoints enviados a Google:', waypoints);
+
     const params = new URLSearchParams({
       origin: `${origin.latitude},${origin.longitude}`,
       destination: `${origin.latitude},${origin.longitude}`,
@@ -107,8 +124,15 @@ export class DirectionsService {
       const response = await axios.get(`${this.GOOGLE_MAPS_API_URL}?${params}`);
       
       if (response.data.status !== 'OK') {
+        console.error('Error en respuesta de Google:', response.data);
         throw new Error(`Error de Google Directions API: ${response.data.status}`);
       }
+
+      console.log('Respuesta de Google:', {
+        status: response.data.status,
+        waypointOrder: response.data.routes[0]?.waypoint_order,
+        legs: response.data.routes[0]?.legs?.length
+      });
 
       return response.data;
     } catch (error) {
@@ -126,9 +150,16 @@ export class DirectionsService {
     totalDistance: number;
     totalDuration: number;
   }> {
+    console.log('Procesando grupo de leads:', leads.map(lead => ({
+      id: lead.id,
+      name: lead.name
+    })));
+
     const googleResponse = await this.getGoogleDirections(leads, origin, mode);
     const route = googleResponse.routes[0];
     const waypointOrder = route.waypoint_order || [];
+    
+    console.log('Orden de waypoints devuelto por Google:', waypointOrder);
     
     const orderedLeads = waypointOrder.map(index => leads[index]);
     let totalDistance = 0;
@@ -152,6 +183,12 @@ export class DirectionsService {
         });
       }
     });
+
+    console.log('Pasos generados:', steps.map(step => ({
+      order: step.order,
+      lead_id: step.lead_id,
+      lead_name: step.lead_name
+    })));
 
     return { steps, totalDistance, totalDuration };
   }

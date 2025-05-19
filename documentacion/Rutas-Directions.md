@@ -39,8 +39,8 @@ GET http://0.0.0.0:8000/api/directions/:id                     <== endpoint para
 
 #                                                OBTENER RUTA OPTIMIZADA DE TODOS LOS MIEMBROS DEL EQUIPO
 
-GET http://0.0.0.0:8000/api/directions/team/6                     <== endpoint para ruta en coche
-    http://0.0.0.0:8000/api/directions/team/walking/6             <== endpoint para ruta andando 
+GET http://0.0.0.0:8000/api/directions/team/:id                     <== endpoint para ruta en coche
+    http://0.0.0.0:8000/api/directions/team/walking/:id             <== endpoint para ruta andando 
 
     Response
                 {

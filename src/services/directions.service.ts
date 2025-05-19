@@ -106,6 +106,7 @@ export class DirectionsService {
       throw new Error('API Key de Google Maps no configurada');
     }
 
+    // Incluimos todos los leads como waypoints
     const waypoints = leads.map(lead => 
       `${lead.latitude},${lead.longitude}`
     ).join('|');
@@ -114,7 +115,7 @@ export class DirectionsService {
 
     const params = new URLSearchParams({
       origin: `${origin.latitude},${origin.longitude}`,
-      destination: `${origin.latitude},${origin.longitude}`,
+      destination: `${origin.latitude},${origin.longitude}`, // Volvemos al origen
       waypoints: `optimize:true|${waypoints}`,
       mode: mode,
       key: apiKey
@@ -161,33 +162,45 @@ export class DirectionsService {
     
     console.log('Orden de waypoints devuelto por Google:', waypointOrder);
     
+    // Reordenamos los leads según el orden optimizado
     const orderedLeads = waypointOrder.map(index => leads[index]);
     let totalDistance = 0;
     let totalDuration = 0;
     const steps: RouteStep[] = [];
 
-    route.legs.forEach((leg, index) => {
-      totalDistance += leg.distance.value;
-      totalDuration += leg.duration.value;
+    // Procesamos cada punto
+    for (let i = 0; i < orderedLeads.length; i++) {
+      const lead = orderedLeads[i];
+      const isLastPoint = i === orderedLeads.length - 1;
+      
+      // Para el último punto, no hay distancia al siguiente
+      // Usamos i+1 para el índice del leg porque el primer leg (0) es desde el origen
+      const distanceToNext = isLastPoint ? 0 : route.legs[i + 1].distance.value / 1000;
+      const durationToNext = isLastPoint ? 0 : Math.round(route.legs[i + 1].duration.value / 60);
 
-      if (index < orderedLeads.length) {
-        steps.push({
-          order: index + 1,
-          lead_id: orderedLeads[index].id,
-          lead_name: orderedLeads[index].name,
-          address: orderedLeads[index].address,
-          latitude: orderedLeads[index].latitude,
-          longitude: orderedLeads[index].longitude,
-          distance_to_next: leg.distance.value / 1000,
-          duration_to_next: Math.round(leg.duration.value / 60)
-        });
+      if (!isLastPoint) {
+        totalDistance += route.legs[i + 1].distance.value;
+        totalDuration += route.legs[i + 1].duration.value;
       }
-    });
+
+      steps.push({
+        order: i + 1,
+        lead_id: lead.id,
+        lead_name: lead.name,
+        address: lead.address,
+        latitude: lead.latitude,
+        longitude: lead.longitude,
+        distance_to_next: distanceToNext,
+        duration_to_next: durationToNext
+      });
+    }
 
     console.log('Pasos generados:', steps.map(step => ({
       order: step.order,
       lead_id: step.lead_id,
-      lead_name: step.lead_name
+      lead_name: step.lead_name,
+      distance_to_next: step.distance_to_next,
+      duration_to_next: step.duration_to_next
     })));
 
     return { steps, totalDistance, totalDuration };

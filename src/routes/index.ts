@@ -13,6 +13,7 @@ import intelligentAgendaRoutes from './intelligentAgendaRoutes';
 import usersRoutes from './users';
 import teamRoutes from './team.routes';
 import teamLogRoutes from './team-log.routes';
+import importGeocodeRoutes from './importGeocode.routes';
 import { authenticate } from '../middlewares/auth';
 
 const router = Router();
@@ -33,6 +34,7 @@ router.use('/reports', reportRoutes);
 router.use('/geocode', geocodingRoutes);
 router.use('/google', googleCalendarRoutes);
 router.use('/routes', authenticate, intelligentAgendaRoutes);
+router.use('/import', importGeocodeRoutes);
 
 // Example of a protected route
 router.get('/protected', authenticate, (req, res) => {

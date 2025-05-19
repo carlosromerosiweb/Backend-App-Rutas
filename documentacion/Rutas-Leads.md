@@ -353,6 +353,27 @@ POST http://0.0.0.0:8000/api/import/leads
             ]
         }
 
+#                                                    IMPORTAR LEADS DE .CSV (CON BUSQUEDA DE DATOS EN LA API DE PLACES)
+#                                          este endpoint necesita un csv con un nombre del lead, una dirección y un código postal
+
+POST http://0.0.0.0:8000/api/import/leads/geocode
+    Body (en form-data)
+        Key: file        
+        Type: file
+        Value: archivoQueSeQuieraImportar.csv
+
+    Response
+        {
+            "message": "Importación y geocodificación completadas",
+            "stats": {
+                "total": 3,
+                "success": 3,
+                "failed": 0
+            },
+            "errors": []
+        }
+
+
 #                                                                   EXPORTAR LEADS A .CSV
 
 GET http://0.0.0.0:8000/api/leads/export    

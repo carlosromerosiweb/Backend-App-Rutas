@@ -32,7 +32,7 @@ def token_required(f):
             token = auth_header.split(' ')[1]
             
         if not token:
-            return jsonify({'message': 'Token is missing'}), 401
+            return jsonify({'message': 'Se requiere un token de autenticación. Por favor, inicie sesión nuevamente.'}), 401
             
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
@@ -46,10 +46,10 @@ def token_required(f):
             conn.close()
             
             if not current_user:
-                return jsonify({'message': 'Invalid token: User not found'}), 401
+                return jsonify({'message': 'El token proporcionado no corresponde a ningún usuario activo. Por favor, inicie sesión nuevamente.'}), 401
                 
         except Exception as e:
-            return jsonify({'message': f'Invalid token: {str(e)}'}), 401
+            return jsonify({'message': f'Error de autenticación: {str(e)}. Por favor, inicie sesión nuevamente.'}), 401
             
         return f(current_user, *args, **kwargs)
     
@@ -120,7 +120,7 @@ def register():
     data = request.get_json()
     
     if not data:
-        return jsonify({'message': 'No se proporcionaron datos'}), 400
+        return jsonify({'message': 'No se recibieron datos en la solicitud. Por favor, proporcione los datos necesarios.'}), 400
         
     email = data.get('email')
     password = data.get('password')
@@ -129,12 +129,12 @@ def register():
     
     # Validar datos obligatorios
     if not email or not password or not name or not role:
-        return jsonify({'message': 'Faltan datos obligatorios (email, password, name, role)'}), 400
+        return jsonify({'message': 'Faltan campos obligatorios. Por favor, complete todos los campos requeridos: email, contraseña, nombre y rol.'}), 400
         
     # Validar que el rol sea correcto
     valid_roles = ['comercial', 'manager', 'admin']
     if role not in valid_roles:
-        return jsonify({'message': f'Rol no válido. Debe ser uno de: {", ".join(valid_roles)}'}), 400
+        return jsonify({'message': f'El rol seleccionado no es válido. Los roles permitidos son: {", ".join(valid_roles)}'}), 400
     
     # Verificar si el email ya existe
     conn = get_db_connection()
@@ -144,7 +144,7 @@ def register():
         # Verificar si el usuario ya existe
         cur.execute("SELECT * FROM users WHERE email = %s", (email,))
         if cur.fetchone():
-            return jsonify({'message': 'El email ya está registrado'}), 409
+            return jsonify({'message': 'Este correo electrónico ya está registrado en el sistema. Por favor, utilice otro correo o inicie sesión.'}), 409
             
         # Crear hash del password
         hashed_password = generate_password_hash(password)
@@ -181,7 +181,7 @@ def register():
         
     except Exception as e:
         print(f"Error al registrar usuario: {str(e)}")
-        return jsonify({'message': f'Error al registrar usuario: {str(e)}'}), 500
+        return jsonify({'message': 'Error al procesar el registro. Por favor, intente nuevamente o contacte al soporte técnico.'}), 500
         
     finally:
         cur.close()
@@ -192,14 +192,14 @@ def login():
     data = request.get_json()
     
     if not data:
-        return jsonify({'message': 'No se proporcionaron datos'}), 400
+        return jsonify({'message': 'No se recibieron datos en la solicitud. Por favor, proporcione sus credenciales.'}), 400
         
     email = data.get('email')
     password = data.get('password')
     
     # Validar datos obligatorios
     if not email or not password:
-        return jsonify({'message': 'Faltan datos obligatorios (email, password)'}), 400
+        return jsonify({'message': 'Faltan campos obligatorios. Por favor, ingrese su correo electrónico y contraseña.'}), 400
     
     # Verificar credenciales
     conn = get_db_connection()
@@ -210,7 +210,7 @@ def login():
         user = cur.fetchone()
         
         if not user or not check_password_hash(user['password'], password):
-            return jsonify({'message': 'Credenciales inválidas'}), 401
+            return jsonify({'message': 'Las credenciales proporcionadas son incorrectas. Por favor, verifique su correo electrónico y contraseña.'}), 401
             
         # Generar token
         token = jwt.encode({
@@ -236,7 +236,7 @@ def login():
         
     except Exception as e:
         print(f"Error al iniciar sesión: {str(e)}")
-        return jsonify({'message': f'Error al iniciar sesión: {str(e)}'}), 500
+        return jsonify({'message': 'Error al procesar el inicio de sesión. Por favor, intente nuevamente o contacte al soporte técnico.'}), 500
         
     finally:
         cur.close()
@@ -273,7 +273,7 @@ def list_users():
         
     except Exception as e:
         print(f"Error al listar usuarios: {str(e)}")
-        return jsonify({'success': False, 'message': f'Error al listar usuarios: {str(e)}'}), 500
+        return jsonify({'success': False, 'message': 'Error al obtener la lista de usuarios. Por favor, intente nuevamente o contacte al soporte técnico.'}), 500
         
     finally:
         cur.close()
@@ -379,7 +379,7 @@ def proxy(path):
         return response
         
     except requests.exceptions.RequestException as e:
-        error_msg = f'Error al contactar con el servidor Node.js: {str(e)}'
+        error_msg = f'No se pudo conectar con el servidor Node.js. Por favor, verifique que el servidor esté en funcionamiento. Detalles: {str(e)}'
         print(error_msg)
         return jsonify({'error': error_msg}), 500
 

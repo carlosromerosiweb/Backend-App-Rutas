@@ -188,7 +188,10 @@ export class IntelligentAgendaController {
 
     } catch (error) {
       console.error('Error en getIntelligentAgenda:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+      res.status(500).json({ 
+        error: 'Error al generar la agenda inteligente',
+        message: 'No se pudo procesar la solicitud de agenda. Por favor, intente nuevamente o contacte al soporte técnico.'
+      });
     }
   }
 } 

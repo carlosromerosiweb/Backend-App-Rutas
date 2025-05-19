@@ -118,6 +118,7 @@ export const sendNotification = async (req: NotificationRequest, res: Response):
     logger.error('Error general al enviar notificación:', error);
     res.status(500).json({ 
       error: 'Error al enviar la notificación',
+      message: 'No se pudo enviar la notificación. Por favor, intente nuevamente o contacte al soporte técnico.',
       details: error instanceof Error ? error.message : 'Error desconocido'
     });
   }

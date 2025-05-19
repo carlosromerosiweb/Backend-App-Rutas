@@ -57,7 +57,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     
     if (result.rows.length === 0) {
       console.error('Error: No se pudo crear el usuario');
-      res.status(500).json({ message: 'Error al crear el usuario' });
+      res.status(500).json({ message: 'No se pudo completar el registro del usuario. Por favor, intente nuevamente o contacte al soporte técnico.' });
       return;
     }
     
@@ -91,7 +91,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json(response);
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error interno del servidor durante el registro' });
+    res.status(500).json({ message: 'Ocurrió un error durante el proceso de registro. Por favor, intente nuevamente o contacte al soporte técnico.' });
   }
 };
 

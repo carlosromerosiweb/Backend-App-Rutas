@@ -31,6 +31,7 @@ export const errorHandler: ErrorRequestHandler = (
   // Error no manejado
   res.status(500).json({
     success: false,
-    error: 'Error interno del servidor'
+    error: 'Ha ocurrido un error inesperado en el servidor',
+    message: 'Por favor, intente nuevamente o contacte al soporte técnico si el problema persiste.'
   });
 }; 

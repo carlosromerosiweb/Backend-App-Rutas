@@ -610,8 +610,8 @@ export const createLeadInteraction = async (req: Request, res: Response): Promis
   } catch (error) {
     logger.error(`Error al crear interacción con lead:`, error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error inesperado'
+      error: 'Error al procesar la interacción con el lead',
+      message: 'No se pudo completar la operación. Por favor, intente nuevamente o contacte al soporte técnico.'
     });
   }
 };
